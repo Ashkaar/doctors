@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Doctors design directions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&family=Vazirmatn:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --brand: #0e7490; --page: #eef0f3; --ink: #15181d; --sub: #5b6270; }
+  :root.dark { --page: #0d0f13; --ink: #e8eaee; --sub: #9aa1ad; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink); font-family: "Plus Jakarta Sans", system-ui, sans-serif; }
+  .bar { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; padding: 12px 16px; background: color-mix(in oklab, var(--page) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid color-mix(in oklab, var(--ink) 10%, transparent); }
+  .bar h1 { font-size: 15px; margin: 0 auto 0 0; }
+  .bar label { display: flex; gap: 8px; align-items: center; font-size: 13px; color: var(--sub); }
+  .swatches { display: flex; gap: 6px; }
+  .swatches button { width: 22px; height: 22px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; }
+  .swatches button[aria-pressed="true"] { border-color: var(--ink); }
+  .toggle { padding: 6px 12px; border-radius: 8px; border: 1px solid color-mix(in oklab, var(--ink) 18%, transparent); background: transparent; color: var(--ink); cursor: pointer; font: inherit; font-size: 13px; }
+  section.dir { max-width: 1240px; margin: 28px auto 44px; padding: 0 16px; }
+  .dir > header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; margin-bottom: 12px; }
+  .dir > header h2 { margin: 0; font-size: 22px; }
+  .dir > header .tag { font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 6px; background: var(--ink); color: var(--page); }
+  .dir > header p { width: 100%; margin: 2px 0 0; color: var(--sub); font-size: 14px; max-width: 820px; line-height: 1.5; }
+  .stage { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 18px; align-items: start; }
+  @media (max-width: 980px) { .stage { grid-template-columns: 1fr; } .phone { margin: 0 auto; } }
+
+  /* ---------- shared mock structure ---------- */
+  .app { border-radius: 14px; overflow: hidden; display: grid; grid-template-columns: 220px minmax(0, 1fr); min-height: 560px; box-shadow: 0 10px 40px -18px rgba(0,0,0,.35); }
+  @media (max-width: 760px) { .app { grid-template-columns: 1fr; } .app .side { display: none; } }
+  .side { padding: 14px 10px; display: flex; flex-direction: column; gap: 2px; }
+  .mark { display: flex; gap: 10px; align-items: center; padding: 4px 8px 14px; }
+  .logo { width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center; font-weight: 800; font-size: 14px; color: #fff; background: var(--brand); flex: none; }
+  .mark b { display: block; font-size: 13px; } .mark small { font-size: 11px; opacity: .65; }
+  .nav { display: flex; gap: 10px; align-items: center; padding: 8px 10px; font-size: 13px; font-weight: 500; border-radius: 8px; }
+  .nav i { width: 16px; height: 16px; border-radius: 4px; border: 1.6px solid currentColor; opacity: .7; flex: none; }
+  .main { padding: 20px 22px; min-width: 0; }
+  .top { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .top h3 { margin: 0; font-size: 20px; } .top small { display: block; font-size: 12px; margin-top: 2px; }
+  .btn { border: 0; font: inherit; font-size: 13px; font-weight: 600; padding: 9px 14px; cursor: pointer; }
+  .stats { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; margin-bottom: 16px; }
+  @media (max-width: 760px) { .stats { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+  .stat .n { font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; } .stat .l { font-size: 12px; }
+  .cols { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 14px; }
+  @media (max-width: 760px) { .cols { grid-template-columns: 1fr; } }
+  .q { display: flex; align-items: center; gap: 12px; padding: 10px 12px; }
+  .num { font-weight: 800; font-variant-numeric: tabular-nums; display: grid; place-items: center; flex: none; }
+  .who { min-width: 0; flex: 1; } .who b { display: block; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .who small { font-size: 11.5px; }
+  .pill { font-size: 11px; font-weight: 700; padding: 3px 8px; white-space: nowrap; }
+  .alert { font-size: 12px; padding: 9px 11px; display: flex; gap: 8px; align-items: flex-start; }
+
+  /* ---------- A: Soft clinical ---------- */
+  .A { --bg: #f6f7f9; --card: #fff; --line: #e6e8ec; --ink: #17202a; --sub: #69717e; --soft: color-mix(in oklab, var(--brand) 9%, white); --softInk: color-mix(in oklab, var(--brand) 80%, black); font-family: "Plus Jakarta Sans", "Vazirmatn", sans-serif; color: var(--ink); }
+  .dark .A { --bg: #0f1216; --card: #171b21; --line: #262b33; --ink: #e7e9ed; --sub: #959caa; --soft: color-mix(in oklab, var(--brand) 18%, #171b21); --softInk: color-mix(in oklab, var(--brand) 55%, white); }
+  .A.app, .A.phone .screen { background: var(--bg); }
+  .A .side { background: var(--card); border-inline-end: 1px solid var(--line); }
+  .A .nav { color: var(--sub); } .A .nav.on { background: var(--soft); color: var(--softInk); }
+  .A .top small, .A .stat .l, .A .who small { color: var(--sub); }
+  .A .btn { background: var(--brand); color: #fff; border-radius: 10px; }
+  .A .btn.ghost { background: var(--card); color: var(--ink); border: 1px solid var(--line); }
+  .A .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
+  .A .stat { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
+  .A .card h4 { margin: 0 0 8px; font-size: 13px; }
+  .A .q { border-radius: 10px; } .A .q + .q { margin-top: 4px; }
+  .A .q.now { background: var(--soft); }
+  .A .num { width: 38px; height: 38px; border-radius: 10px; background: var(--bg); border: 1px solid var(--line); font-size: 15px; }
+  .A .q.now .num { background: var(--brand); color: #fff; border-color: transparent; }
+  .A .pill { border-radius: 999px; background: var(--bg); color: var(--sub); }
+  .A .pill.go { background: var(--brand); color: #fff; }
+  .A .alert { background: color-mix(in oklab, #f59e0b 14%, var(--card)); color: color-mix(in oklab, #b45309 85%, var(--ink)); border-radius: 10px; }
+
+  /* ---------- B: Crisp desk ---------- */
+  .B { --bg: #fbfbfc; --card: #fff; --line: #e3e5e9; --ink: #111418; --sub: #626a77; --rail: #14181e; --railInk: #a9b0bc; font-family: "IBM Plex Sans", "Vazirmatn", sans-serif; color: var(--ink); }
+  .dark .B { --bg: #0b0d10; --card: #12151a; --line: #23272e; --ink: #e9ebee; --sub: #8f96a3; --rail: #07090b; --railInk: #8f96a3; }
+  .B.app, .B.phone .screen { background: var(--bg); }
+  .B .side { background: var(--rail); color: #fff; }
+  .B .mark small { color: var(--railInk); opacity: 1; }
+  .B .logo { border-radius: 6px; }
+  .B .nav { color: var(--railInk); border-radius: 4px; } .B .nav.on { color: #fff; background: rgba(255,255,255,.07); box-shadow: inset 3px 0 0 var(--brand); }
+  [dir="rtl"] .B .nav.on { box-shadow: inset -3px 0 0 var(--brand); }
+  .B .top small, .B .stat .l, .B .who small { color: var(--sub); }
+  .B .btn { background: var(--brand); color: #fff; border-radius: 6px; }
+  .B .btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+  .B .stats { gap: 0; border: 1px solid var(--line); border-radius: 8px; background: var(--card); }
+  .B .stat { padding: 12px 14px; } .B .stat + .stat { border-inline-start: 1px solid var(--line); }
+  @media (max-width: 760px) { .B .stat:nth-child(3) { border-inline-start: 0; } .B .stat:nth-child(n+3) { border-top: 1px solid var(--line); } }
+  .B .stat .n { font-size: 22px; font-weight: 700; }
+  .B .card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; }
+  .B .card h4 { margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--sub); padding: 10px 12px; border-bottom: 1px solid var(--line); }
+  .B .q { border-radius: 0; } .B .q + .q { border-top: 1px solid var(--line); }
+  .B .q.now { box-shadow: inset 3px 0 0 var(--brand); background: color-mix(in oklab, var(--brand) 6%, var(--card)); }
+  [dir="rtl"] .B .q.now { box-shadow: inset -3px 0 0 var(--brand); }
+  .B .num { width: 34px; font-size: 16px; color: var(--sub); }
+  .B .q.now .num { color: var(--brand); }
+  .B .pill { border-radius: 4px; border: 1px solid var(--line); color: var(--sub); }
+  .B .pill.go { border-color: var(--brand); color: var(--brand); }
+  .B .alert { border-inline-start: 3px solid #d97706; background: color-mix(in oklab, #f59e0b 9%, var(--card)); margin: 10px 12px 12px; border-radius: 2px; }
+  .B .card .pad { padding: 10px 12px; }
+
+  /* ---------- C: Warm calm ---------- */
+  .C { --bg: #f5f1ea; --card: #fffdf9; --line: #e9e2d6; --ink: #2a2520; --sub: #7d7368; --soft: color-mix(in oklab, var(--brand) 12%, #fffdf9); --softInk: color-mix(in oklab, var(--brand) 75%, black); font-family: "Nunito", "Vazirmatn", sans-serif; color: var(--ink); }
+  .dark .C { --bg: #15120f; --card: #1f1b17; --line: #322c25; --ink: #efe9e1; --sub: #a99f93; --soft: color-mix(in oklab, var(--brand) 20%, #1f1b17); --softInk: color-mix(in oklab, var(--brand) 50%, white); }
+  .C.app, .C.phone .screen { background: var(--bg); }
+  .C .side { background: transparent; padding-top: 18px; }
+  .C .logo { border-radius: 50%; }
+  .C .nav { color: var(--sub); border-radius: 999px; font-size: 14px; padding: 10px 14px; } .C .nav.on { background: var(--card); color: var(--ink); box-shadow: 0 2px 10px -4px rgba(60,40,20,.25); font-weight: 700; }
+  .C .nav.on i { border-color: var(--brand); opacity: 1; }
+  .C .main { padding: 24px 26px; }
+  .C .top h3 { font-size: 24px; font-weight: 800; }
+  .C .top small, .C .stat .l, .C .who small { color: var(--sub); }
+  .C .btn { background: var(--brand); color: #fff; border-radius: 999px; padding: 10px 18px; font-weight: 700; }
+  .C .btn.ghost { background: var(--card); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+  .C .stat { background: var(--card); border-radius: 20px; padding: 16px; box-shadow: 0 1px 0 var(--line); }
+  .C .stat:first-child { background: var(--brand); color: #fff; } .C .stat:first-child .l { color: rgba(255,255,255,.85); }
+  .C .stat .n { font-size: 28px; }
+  .C .card { background: var(--card); border-radius: 22px; padding: 16px; box-shadow: 0 1px 0 var(--line); }
+  .C .card h4 { margin: 0 0 10px; font-size: 15px; font-weight: 800; }
+  .C .q { border-radius: 16px; padding: 12px; } .C .q + .q { margin-top: 6px; }
+  .C .q.now { background: var(--soft); }
+  .C .num { width: 44px; height: 44px; border-radius: 50%; background: var(--bg); font-size: 17px; }
+  .C .q.now .num { background: var(--brand); color: #fff; }
+  .C .who b { font-size: 14px; }
+  .C .pill { border-radius: 999px; background: var(--bg); color: var(--sub); padding: 4px 10px; }
+  .C .pill.go { background: var(--brand); color: #fff; }
+  .C .alert { background: color-mix(in oklab, #f59e0b 16%, var(--card)); border-radius: 14px; color: color-mix(in oklab, #92400e 80%, var(--ink)); }
+
+  /* ---------- phone ---------- */
+  .phone { width: 300px; border-radius: 34px; padding: 10px; background: #111; box-shadow: 0 16px 40px -18px rgba(0,0,0,.5); }
+  .phone .screen { border-radius: 26px; overflow: hidden; height: 600px; display: flex; flex-direction: column; }
+  .phone .ptop { display: flex; align-items: center; gap: 10px; padding: 16px 14px 10px; }
+  .phone .ptop .logo { width: 28px; height: 28px; font-size: 12px; }
+  .phone .ptop b { font-size: 13px; flex: 1; }
+  .phone .pbody { flex: 1; padding: 4px 12px; overflow: hidden; }
+  .phone .pbody h3 { margin: 4px 2px 10px; font-size: 18px; }
+  .phone .tabs { display: flex; justify-content: space-around; padding: 8px 6px 14px; font-size: 10px; font-weight: 600; }
+  .phone .tabs span { display: flex; flex-direction: column; align-items: center; gap: 4px; } .phone .tabs i { width: 18px; height: 18px; border: 1.6px solid currentColor; border-radius: 5px; }
+  .A.phone .tabs { background: var(--card); border-top: 1px solid var(--line); color: var(--sub); } .A.phone .tabs .on { color: var(--brand); }
+  .B.phone .tabs { background: var(--card); border-top: 1px solid var(--line); color: var(--sub); } .B.phone .tabs .on { color: var(--brand); }
+  .C.phone .tabs { margin: 0 10px 12px; border-radius: 999px; background: var(--card); color: var(--sub); box-shadow: 0 4px 14px -6px rgba(60,40,20,.3); padding: 8px 6px; } .C.phone .tabs .on { color: var(--brand); }
+  .B .phone-card { border: 1px solid var(--line); border-radius: 8px; background: var(--card); }
+  .A .phone-card, .C .phone-card { }
+  .note { max-width: 1240px; margin: 0 auto 40px; padding: 0 16px; color: var(--sub); font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="bar">
+  <h1>Doctors: three design directions</h1>
+  <label>Clinic colour
+    <span class="swatches" id="sw"></span>
+    <input type="color" id="pick" value="#0e7490" aria-label="Pick a colour">
+  </label>
+  <button class="toggle" id="dark" type="button">Dark mode</button>
+  <button class="toggle" id="rtl" type="button">Kurdish (right to left)</button>
+</div>
+
+<template id="screen">
+  <div class="app">
+    <aside class="side">
+      <div class="mark"><span class="logo">CC</span><span><b>City Clinic</b><small>Erbil branch</small></span></div>
+      <div class="nav on"><i></i><span data-t="today">Today</span></div>
+      <div class="nav"><i></i><span data-t="appts">Appointments</span></div>
+      <div class="nav"><i></i><span data-t="queue">Queue</span></div>
+      <div class="nav"><i></i><span data-t="patients">Patients</span></div>
+      <div class="nav"><i></i><span data-t="fees">Fees</span></div>
+      <div class="nav"><i></i><span data-t="reports">Reports</span></div>
+      <div class="nav"><i></i><span data-t="settings">Settings</span></div>
+    </aside>
+    <div class="main">
+      <div class="top">
+        <div><h3 data-t="hello">Good morning, Dr. Sara</h3><small data-t="date">Saturday 21 Nov · 14 appointments</small></div>
+        <div style="display:flex;gap:8px"><button class="btn ghost" data-t="walkin">+ Walk-in</button><button class="btn" data-t="callnext">Call next</button></div>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="n">6</div><div class="l" data-t="waiting">Waiting</div></div>
+        <div class="stat"><div class="n">9</div><div class="l" data-t="seen">Seen today</div></div>
+        <div class="stat"><div class="n">5</div><div class="l" data-t="left">Booked later</div></div>
+        <div class="stat"><div class="n">450,000</div><div class="l" data-t="income">Fees today (IQD)</div></div>
+      </div>
+      <div class="cols">
+        <div class="card">
+          <h4 data-t="queueh">Queue · Dr. Sara</h4>
+          <div class="pad">
+            <div class="q now"><span class="num">12</span><span class="who"><b>Ahmed Karim</b><small data-t="r1">File 1042 · 34 y · Follow-up</small></span><span class="pill go" data-t="inroom">In room</span></div>
+            <div class="q"><span class="num">13</span><span class="who"><b>Lana Omer</b><small data-t="r2">File 2210 · 8 y · Fever</small></span><span class="pill" data-t="wait1">Waiting 12 min</span></div>
+            <div class="q"><span class="num">14</span><span class="who"><b>Hawre Jalal</b><small data-t="r3">File 0977 · 61 y · Blood pressure</small></span><span class="pill" data-t="wait2">Waiting 5 min</span></div>
+            <div class="q"><span class="num">15</span><span class="who"><b>Shilan Aziz</b><small data-t="r4">File 3301 · 27 y · New patient</small></span><span class="pill" data-t="appt">10:45 appt</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <h4 data-t="nowh">Now with you</h4>
+          <div class="pad">
+            <div style="font-weight:800;font-size:16px">Ahmed Karim</div>
+            <div style="font-size:12px;opacity:.7;margin:2px 0 10px" data-t="meta">Male · 34 years · O+</div>
+            <div class="alert"><span>⚠</span><span data-t="allergy">Allergic to penicillin · Type 2 diabetes</span></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;font-size:12px">
+              <div><div style="opacity:.65" data-t="bp">Blood pressure</div><b style="font-size:15px">128/82</b></div>
+              <div><div style="opacity:.65" data-t="sugar">Blood sugar</div><b style="font-size:15px">142 mg/dL</b></div>
+              <div><div style="opacity:.65" data-t="temp">Temperature</div><b style="font-size:15px">36.8 °C</b></div>
+              <div><div style="opacity:.65" data-t="weight">Weight</div><b style="font-size:15px">82 kg</b></div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:14px"><button class="btn" style="flex:1" data-t="open">Open visit</button><button class="btn ghost" data-t="rx">Prescription</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="phone">
+    <div class="screen">
+      <div class="ptop"><span class="logo">CC</span><b>City Clinic</b></div>
+      <div class="pbody">
+        <h3 data-t="queue">Queue</h3>
+        <div class="phone-card">
+          <div class="q now"><span class="num">12</span><span class="who"><b>Ahmed Karim</b><small data-t="r1s">File 1042 · Follow-up</small></span></div>
+          <div class="q"><span class="num">13</span><span class="who"><b>Lana Omer</b><small data-t="r2s">File 2210 · Fever</small></span></div>
+          <div class="q"><span class="num">14</span><span class="who"><b>Hawre Jalal</b><small data-t="r3s">File 0977 · Blood pressure</small></span></div>
+          <div class="q"><span class="num">15</span><span class="who"><b>Shilan Aziz</b><small data-t="r4s">File 3301 · New</small></span></div>
+        </div>
+        <button class="btn" style="width:100%;margin-top:12px" data-t="callnext">Call next</button>
+      </div>
+      <div class="tabs"><span class="on"><i></i><span data-t="today">Today</span></span><span><i></i><span data-t="appts">Appointments</span></span><span><i></i><span data-t="patients">Patients</span></span><span><i></i><span data-t="more">More</span></span></div>
+    </div>
+  </div>
+</template>
+
+<section class="dir" data-k="A">
+  <header><span class="tag">A</span><h2>Soft clinical</h2>
+    <p>Light, airy and friendly. White cards with soft rounded corners, and the clinic's colour on the selected item, the main buttons and the patient now in the room. Plus Jakarta Sans, the same family as Dukaloo. Easy to read for long days at reception.</p></header>
+  <div class="stage"></div>
+</section>
+<section class="dir" data-k="B">
+  <header><span class="tag">B</span><h2>Crisp desk</h2>
+    <p>Compact and professional, like a hospital system done well. A dark sidebar, thin lines, square corners, and lists that show more patients without scrolling. The clinic's colour is used sparingly, as a marker line. IBM Plex Sans. Best for busy clinics with several doctors.</p></header>
+  <div class="stage"></div>
+</section>
+<section class="dir" data-k="C">
+  <header><span class="tag">C</span><h2>Warm calm</h2>
+    <p>Soft and reassuring. Warm paper-like surfaces instead of cold grey, round buttons and turn numbers, larger text, and a floating tab bar on phones. The clinic's colour fills the main figure. Nunito, a rounded font. Feels more like a family practice than a hospital.</p></header>
+  <div class="stage"></div>
+</section>
+<p class="note">Everything above is placeholder data. Whichever direction you choose, the app uses only colour tokens, works in light and dark, mirrors fully for Kurdish and Arabic, and takes the clinic's own colour from Ariloo.</p>
+
+<script>
+  const ku = { today:"ئەمڕۆ", appts:"چاوپێکەوتنەکان", queue:"ڕیز", patients:"نەخۆشەکان", fees:"کرێکان", reports:"ڕاپۆرتەکان", settings:"ڕێکخستنەکان", hello:"بەیانیت باش، د. سارا", date:"شەممە ٢١ی تشرینی دووەم · 14 چاوپێکەوتن", walkin:"+ سەردانی بێ کات", callnext:"بانگکردنی دواتر", waiting:"چاوەڕوان", seen:"بینراو ئەمڕۆ", left:"کاتی دواتر", income:"کرێی ئەمڕۆ (IQD)", queueh:"ڕیز · د. سارا", inroom:"لە ژوورە", wait1:"12 خولەک چاوەڕوان", wait2:"5 خولەک چاوەڕوان", appt:"کات 10:45", nowh:"ئێستا لەگەڵتە", meta:"نێر · 34 ساڵ · O+", allergy:"هەستیاری بە پەنسلین · شەکرەی جۆری 2", bp:"پەستانی خوێن", sugar:"شەکری خوێن", temp:"پلەی گەرمی", weight:"کێش", open:"کردنەوەی سەردان", rx:"ڕەچەتە", more:"زیاتر", r1:"فایل 1042 · 34 ساڵ · بەدواداچوون", r2:"فایل 2210 · 8 ساڵ · تا", r3:"فایل 0977 · 61 ساڵ · پەستانی خوێن", r4:"فایل 3301 · 27 ساڵ · نەخۆشی نوێ", r1s:"فایل 1042 · بەدواداچوون", r2s:"فایل 2210 · تا", r3s:"فایل 0977 · پەستان", r4s:"فایل 3301 · نوێ" };
+  const tpl = document.getElementById("screen");
+  const en = {};
+  document.querySelectorAll(".dir").forEach((d) => {
+    const frag = tpl.content.cloneNode(true);
+    frag.querySelector(".app").classList.add(d.dataset.k);
+    frag.querySelector(".phone").classList.add(d.dataset.k);
+    d.querySelector(".stage").appendChild(frag);
+  });
+  document.querySelectorAll("[data-t]").forEach((el) => { en[el.dataset.t] ??= el.textContent; });
+  const colours = ["#0e7490", "#2563eb", "#16a34a", "#7c3aed", "#db2777", "#c2410c"];
+  const sw = document.getElementById("sw");
+  const set = (c) => { document.documentElement.style.setProperty("--brand", c); document.getElementById("pick").value = c; sw.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.c === c))); };
+  colours.forEach((c) => { const b = document.createElement("button"); b.type = "button"; b.style.background = c; b.dataset.c = c; b.title = c; b.onclick = () => set(c); sw.appendChild(b); });
+  set(colours[0]);
+  document.getElementById("pick").oninput = (e) => set(e.target.value);
+  document.getElementById("dark").onclick = (e) => { const on = document.documentElement.classList.toggle("dark"); e.target.textContent = on ? "Light mode" : "Dark mode"; };
+  document.getElementById("rtl").onclick = (e) => {
+    const rtl = document.documentElement.dir !== "rtl";
+    document.querySelectorAll(".stage").forEach((s) => s.dir = rtl ? "rtl" : "ltr");
+    document.documentElement.dir = rtl ? "rtl" : "ltr";
+    document.querySelectorAll("[data-t]").forEach((el) => { el.textContent = (rtl ? ku : en)[el.dataset.t] ?? en[el.dataset.t]; });
+    e.target.textContent = rtl ? "English" : "Kurdish (right to left)";
+  };
+</script>
+</body>
+</html>
