@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Offline · Doctors</title>
+    <style>
+      :root { color-scheme: light dark; --bg: #f4efe7; --card: #fffdf9; --fg: #2a2520; --muted: #7d7368; --brand: #0e7490; }
+      @media (prefers-color-scheme: dark) { :root { --bg: #15120f; --card: #1f1b17; --fg: #efe9e1; --muted: #a99f93; --brand: #38a3c0; } }
+      body { margin: 0; min-height: 100dvh; display: grid; place-items: center; background: var(--bg); color: var(--fg); font: 15px/1.5 ui-rounded, system-ui, "Segoe UI", Tahoma, sans-serif; padding: 16px; box-sizing: border-box; }
+      main { max-width: 420px; width: 100%; background: var(--card); border-radius: 24px; padding: 28px; box-shadow: 0 8px 28px -14px rgba(60,40,20,.35); text-align: center; }
+      h1 { font-size: 20px; margin: 12px 0 4px; }
+      p { margin: 6px 0; color: var(--muted); }
+      [dir="rtl"] { font-family: Tahoma, system-ui, sans-serif; }
+      button { margin-top: 18px; height: 44px; padding: 0 22px; border: 0; border-radius: 999px; background: var(--brand); color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h.01"/><path d="M8.5 16.43a5 5 0 0 1 7 0"/><path d="M5 12.86a10 10 0 0 1 5.17-2.69"/><path d="M19 12.86a10 10 0 0 0-2-1.43"/><path d="M2 8.82a15 15 0 0 1 4.17-2.65"/><path d="M10.66 5c4.01-.36 8.14.9 11.34 3.76"/><path d="m2 2 20 20"/></svg>
+      <h1>You're offline</h1>
+      <p>Patient records are never kept on this device, so the clinic needs a connection. Check the internet and try again.</p>
+      <p dir="rtl" lang="ckb">ئێستا دەرهێڵیت. تۆماری نەخۆشەکان لەسەر ئەم ئامێرە هەڵناگیرێن، بۆیە پێویستت بە ئینتەرنێتە.</p>
+      <p dir="rtl" lang="ar">أنت غير متصل. لا تُحفظ سجلات المرضى على هذا الجهاز، لذلك تحتاج العيادة إلى اتصال.</p>
+      <p lang="tr">Çevrimdışısınız. Hasta kayıtları bu cihazda saklanmaz, bu yüzden bağlantı gerekir.</p>
+      <button type="button" onclick="location.reload()">Try again · دووبارە · إعادة · Tekrar</button>
+    </main>
+  </body>
+</html>
