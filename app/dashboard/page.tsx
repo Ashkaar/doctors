@@ -6,7 +6,7 @@ import { requireSectionPage } from "@/lib/pageAccess";
 import { countPatients } from "@/lib/patientsDb";
 import { listAppointments, listQueue } from "@/lib/scheduleDb";
 import { listServices } from "@/lib/moneyDb";
-import { requestToday } from "@/lib/settingsDb";
+import { getClinicTypes, requestToday } from "@/lib/settingsDb";
 import { accountUrl, currentShop } from "@/lib/tenant";
 
 export default async function DashboardPage() {
@@ -15,13 +15,14 @@ export default async function DashboardPage() {
   const { day } = await requestToday();
   // A doctor who sees only their own patients sees only their own day.
   const mine = viewer.ownPatientsOnly ? (viewer.doctorId ?? -1) : undefined;
-  const [doctors, appointments, queue, money, patients, services] = await Promise.all([
+  const [doctors, appointments, queue, money, patients, services, types] = await Promise.all([
     listDoctors(true),
     viewer.sections.includes("appointments") ? listAppointments(day, mine) : Promise.resolve([]),
     viewer.sections.includes("queue") ? listQueue(day, mine) : Promise.resolve([]),
     viewer.sections.includes("payments") ? moneyBetween(day, addDays(day, 1)) : Promise.resolve(null),
     viewer.isOwner ? countPatients() : Promise.resolve(0),
     viewer.isOwner ? listServices() : Promise.resolve([]),
+    getClinicTypes(),
   ]);
   const subscription: Subscription | null =
     shop && viewer.kind === "owner" ? { state: shop.state, plan: shop.plan, trialEndsAt: shop.trialEndsAt, paidUntil: shop.paidUntil, accountUrl: accountUrl() } : null;
@@ -37,6 +38,7 @@ export default async function DashboardPage() {
       queue={queue}
       feesToday={feesToday}
       setup={setup}
+      askClinicType={viewer.kind === "owner" && types === null}
     />
   );
 }

@@ -244,6 +244,91 @@ export const SCHEMA: string[] = [
     deleted_at INTEGER
   )`,
   "CREATE INDEX IF NOT EXISTS expenses_day ON expenses (day)",
+
+  // ---- Specialty charts (lib/specialties.ts) ----
+  // Dental: each tooth's current state (FDI numbers), and the work planned
+  // or done on it (tooth NULL = the whole mouth).
+  `CREATE TABLE IF NOT EXISTS dental_teeth (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    patient_id INTEGER NOT NULL,
+    tooth INTEGER NOT NULL,
+    conditions TEXT NOT NULL DEFAULT '[]',
+    surfaces TEXT NOT NULL DEFAULT '{}',
+    note TEXT NOT NULL DEFAULT '',
+    updated_at INTEGER NOT NULL
+  )`,
+  "CREATE UNIQUE INDEX IF NOT EXISTS dental_teeth_patient_tooth ON dental_teeth (patient_id, tooth)",
+  `CREATE TABLE IF NOT EXISTS dental_work (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    patient_id INTEGER NOT NULL,
+    visit_id INTEGER,
+    tooth INTEGER,
+    procedure TEXT NOT NULL,
+    surfaces TEXT NOT NULL DEFAULT '[]',
+    status TEXT NOT NULL DEFAULT 'planned',
+    fee INTEGER NOT NULL DEFAULT 0,
+    note TEXT NOT NULL DEFAULT '',
+    charge_id INTEGER,
+    created_by TEXT NOT NULL DEFAULT '',
+    created_at INTEGER NOT NULL,
+    done_at INTEGER
+  )`,
+  "CREATE INDEX IF NOT EXISTS dental_work_patient ON dental_work (patient_id)",
+  // Eye: one exam per visit (JSON, lib/specialties.ts EyeExam).
+  `CREATE TABLE IF NOT EXISTS eye_exams (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    visit_id INTEGER NOT NULL,
+    patient_id INTEGER NOT NULL,
+    data TEXT NOT NULL,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+  )`,
+  "CREATE UNIQUE INDEX IF NOT EXISTS eye_exams_visit ON eye_exams (visit_id)",
+  "CREATE INDEX IF NOT EXISTS eye_exams_patient ON eye_exams (patient_id)",
+  // Children: vaccines given (growth uses the visits' vitals).
+  `CREATE TABLE IF NOT EXISTS vaccinations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    patient_id INTEGER NOT NULL,
+    vaccine TEXT NOT NULL,
+    given_on TEXT NOT NULL,
+    batch TEXT NOT NULL DEFAULT '',
+    note TEXT NOT NULL DEFAULT '',
+    created_by TEXT NOT NULL DEFAULT '',
+    created_at INTEGER NOT NULL
+  )`,
+  "CREATE INDEX IF NOT EXISTS vaccinations_patient ON vaccinations (patient_id)",
+  // Women's health: pregnancies and their antenatal checks.
+  `CREATE TABLE IF NOT EXISTS pregnancies (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    patient_id INTEGER NOT NULL,
+    lmp TEXT NOT NULL,
+    edd TEXT NOT NULL,
+    gravida INTEGER,
+    para INTEGER,
+    status TEXT NOT NULL DEFAULT 'active',
+    ended_on TEXT NOT NULL DEFAULT '',
+    outcome TEXT NOT NULL DEFAULT '',
+    notes TEXT NOT NULL DEFAULT '',
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+  )`,
+  "CREATE INDEX IF NOT EXISTS pregnancies_patient ON pregnancies (patient_id)",
+  `CREATE TABLE IF NOT EXISTS anc_checks (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    pregnancy_id INTEGER NOT NULL,
+    patient_id INTEGER NOT NULL,
+    visit_id INTEGER,
+    day TEXT NOT NULL,
+    weight_g INTEGER,
+    bp_sys INTEGER,
+    bp_dia INTEGER,
+    fhr INTEGER,
+    fundal_cm INTEGER,
+    presentation TEXT NOT NULL DEFAULT '',
+    notes TEXT NOT NULL DEFAULT '',
+    created_at INTEGER NOT NULL
+  )`,
+  "CREATE INDEX IF NOT EXISTS anc_checks_pregnancy ON anc_checks (pregnancy_id)",
 ];
 
 // Columns added to tables after they first shipped: [table, column, definition].

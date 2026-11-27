@@ -3,7 +3,7 @@ import { and, desc, eq, exists, like, or, sql, type SQL } from "drizzle-orm";
 import type { z } from "zod";
 import type { Gender, Patient, PatientSummary, patientSchema } from "./clinic";
 import { getDb } from "./db";
-import { appointments, charges, orders, patientFileData, patientFiles, patients, payments, prescriptionItems, queue, visits } from "./db/schema";
+import { ancChecks, appointments, charges, dentalTeeth, dentalWork, eyeExams, orders, patientFileData, patientFiles, patients, payments, pregnancies, prescriptionItems, queue, vaccinations, visits } from "./db/schema";
 import type { Viewer } from "./sections";
 
 // Patients. What a login may see is decided here, once:
@@ -179,6 +179,12 @@ export async function deletePatient(id: number): Promise<boolean> {
       { sql: "DELETE FROM appointments WHERE patient_id = ?", args: [id] },
       { sql: "DELETE FROM charges WHERE patient_id = ?", args: [id] },
       { sql: "DELETE FROM payments WHERE patient_id = ?", args: [id] },
+      { sql: "DELETE FROM dental_teeth WHERE patient_id = ?", args: [id] },
+      { sql: "DELETE FROM dental_work WHERE patient_id = ?", args: [id] },
+      { sql: "DELETE FROM eye_exams WHERE patient_id = ?", args: [id] },
+      { sql: "DELETE FROM vaccinations WHERE patient_id = ?", args: [id] },
+      { sql: "DELETE FROM anc_checks WHERE patient_id = ?", args: [id] },
+      { sql: "DELETE FROM pregnancies WHERE patient_id = ?", args: [id] },
       { sql: "DELETE FROM patients WHERE id = ?", args: [id] },
     ],
     "write",
@@ -188,4 +194,4 @@ export async function deletePatient(id: number): Promise<boolean> {
 
 // Kept for the type checker: every table that holds patient data, so a new
 // one isn't forgotten in deletePatient() above and exportAll().
-export const PATIENT_TABLES = [patients, appointments, queue, visits, prescriptionItems, orders, patientFiles, patientFileData, charges, payments] as const;
+export const PATIENT_TABLES = [patients, appointments, queue, visits, prescriptionItems, orders, patientFiles, patientFileData, charges, payments, dentalTeeth, dentalWork, eyeExams, vaccinations, pregnancies, ancChecks] as const;

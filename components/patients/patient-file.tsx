@@ -42,10 +42,25 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
+import { EyeHistory } from "../specialties/eye-exam";
+import { GrowthChart, Vaccinations, type GrowthPoint } from "../specialties/growth";
+import { PregnancyPanel, type PregnancyWithChecks } from "../specialties/pregnancy";
+import { ToothChart } from "../specialties/tooth-chart";
+import type { DentalWork, EyeExam, ToothState, Vaccination } from "@/lib/specialties";
 import { FilesPanel } from "./files-panel";
 import { PatientDialog } from "./patient-form";
 
-type Tab = "visits" | "appointments" | "files" | "fees";
+type Tab = "teeth" | "eyes" | "growth" | "pregnancy" | "visits" | "appointments" | "files" | "fees";
+
+export interface SpecialtyData {
+  show: { teeth: boolean; eyes: boolean; growth: boolean; pregnancy: boolean };
+  teeth: ToothState[];
+  work: DentalWork[];
+  eyeExams: { visitId: number; at: number; exam: EyeExam }[];
+  growth: GrowthPoint[];
+  vaccines: Vaccination[];
+  pregnancies: PregnancyWithChecks[];
+}
 
 export interface PatientAbilities {
   alerts: boolean;
@@ -74,6 +89,7 @@ export function PatientFile({
   services,
   can,
   myDoctorId,
+  specialty,
 }: {
   patient: Patient;
   today: string;
@@ -88,13 +104,31 @@ export function PatientFile({
   services: Service[];
   can: PatientAbilities;
   myDoctorId: number | null;
+  specialty: SpecialtyData;
 }) {
   const { t, date, dateTime, money: fmt, day: dayText } = useI18n();
   const p = t.patients;
   const shop = useShop();
   const router = useRouter();
-  const tabs: Tab[] = ["visits", ...(can.book ? (["appointments"] as Tab[]) : []), ...(can.files ? (["files"] as Tab[]) : []), ...(can.fees ? (["fees"] as Tab[]) : [])];
-  const [tab, setTab] = useState<Tab>("visits");
+  const sp = specialty.show;
+  // Charts in the order that fits this patient: a young child's growth
+  // first; pregnancy only for women and girls of 10 and over.
+  const ageNow = patient.birthDate ? ageOn(patient.birthDate, today) : null;
+  const child = ageNow !== null && ageNow < 13;
+  const charts: Tab[] = [
+    ...(sp.growth && child ? (["growth"] as Tab[]) : []),
+    ...(sp.pregnancy && specialty.pregnancies.some((x) => x.status === "active") ? (["pregnancy"] as Tab[]) : []),
+    ...(sp.teeth ? (["teeth"] as Tab[]) : []),
+    ...(sp.eyes ? (["eyes"] as Tab[]) : []),
+    ...(sp.growth && !child && (ageNow === null || ageNow < 19) ? (["growth"] as Tab[]) : []),
+    ...(sp.pregnancy && (ageNow === null || ageNow >= 10) && !specialty.pregnancies.some((x) => x.status === "active") ? (["pregnancy"] as Tab[]) : []),
+  ];
+  const tabs: Tab[] = [
+    ...charts,
+    "visits",
+    ...(can.book ? (["appointments"] as Tab[]) : []), ...(can.files ? (["files"] as Tab[]) : []), ...(can.fees ? (["fees"] as Tab[]) : [])];
+  // A specialty clinic opens on its chart.
+  const [tab, setTab] = useState<Tab>(tabs[0]);
   const [dialog, setDialog] = useState<null | "edit" | "book" | "queue" | "fee" | "payment" | "delete" | "visit">(null);
   const active = doctors.filter((d) => d.active);
   const [visitDoctor, setVisitDoctor] = useState<number | null>(myDoctorId ?? (active.length === 1 ? active[0].id : null));
@@ -244,11 +278,30 @@ export function PatientFile({
                   onClick={() => setTab(x)}
                   className={cn("h-9 shrink-0 cursor-pointer rounded-full px-4 text-sm font-bold", tab === x ? "bg-card text-foreground shadow-soft" : "text-muted-foreground hover:text-foreground")}
                 >
-                  {p.tabs[x]}
+                  {x in p.tabs ? p.tabs[x as keyof typeof p.tabs] : t.specialtyTabs[x as keyof typeof t.specialtyTabs]}
                 </button>
               ))}
             </div>
           )}
+
+          {tab === "teeth" && (
+            <ToothChart
+              patientId={patient.id}
+              ageYears={age}
+              initialTeeth={specialty.teeth}
+              work={specialty.work}
+              canBill={can.fees}
+              doctorId={myDoctorId}
+            />
+          )}
+          {tab === "eyes" && <EyeHistory exams={specialty.eyeExams} />}
+          {tab === "growth" && (
+            <div className="space-y-4">
+              <GrowthChart birthDate={patient.birthDate} sex={patient.gender} points={specialty.growth} today={today} />
+              <Vaccinations patientId={patient.id} birthDate={patient.birthDate} today={today} given={specialty.vaccines} />
+            </div>
+          )}
+          {tab === "pregnancy" && <PregnancyPanel patientId={patient.id} pregnancies={specialty.pregnancies} today={today} />}
 
           {tab === "visits" && (
             <Card className="p-2">

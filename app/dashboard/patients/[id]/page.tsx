@@ -9,7 +9,8 @@ import { listServices, patientMoney } from "@/lib/moneyDb";
 import { requireSectionPage } from "@/lib/pageAccess";
 import { getPatient } from "@/lib/patientsDb";
 import { patientAppointments } from "@/lib/scheduleDb";
-import { getHours, requestToday } from "@/lib/settingsDb";
+import { getClinicTypes, getHours, requestToday } from "@/lib/settingsDb";
+import { growthPoints, listChecks, listEyeExams, listPregnancies, listTeeth, listVaccinations, listWork } from "@/lib/specialtiesDb";
 import { listOrders, listVisits, visitsWithPrescription } from "@/lib/visitsDb";
 
 export default async function PatientPage({ params }: { params: Promise<{ id: string }> }) {
@@ -33,6 +34,22 @@ export default async function PatientPage({ params }: { params: Promise<{ id: st
     withFees ? patientMoney(id) : Promise.resolve(null),
     withFees ? listServices(true) : Promise.resolve([]),
     full ? visitsWithPrescription(id) : Promise.resolve(new Set<number>()),
+  ]);
+  // The clinic's kind decides which charts the file shows.
+  const types = (await getClinicTypes()) ?? ["general"];
+  const show = {
+    teeth: types.includes("dental") && full,
+    eyes: types.includes("eye") && full,
+    growth: types.includes("children") && viewer.clinical !== "none",
+    pregnancy: types.includes("womens") && full && patient.gender !== "m",
+  };
+  const [teeth, work, eyeExams, growth, vaccines, pregnancies] = await Promise.all([
+    show.teeth ? listTeeth(id) : Promise.resolve([]),
+    show.teeth ? listWork(id) : Promise.resolve([]),
+    show.eyes ? listEyeExams(id) : Promise.resolve([]),
+    show.growth ? growthPoints(id) : Promise.resolve([]),
+    show.growth ? listVaccinations(id) : Promise.resolve([]),
+    show.pregnancy ? listPregnancies(id).then((list) => Promise.all(list.map(async (p) => ({ ...p, checks: await listChecks(p.id) })))) : Promise.resolve([]),
   ]);
   await logActivity(actorOf(viewer), "patient-opened", `#${patient.fileNo}`);
   return (
@@ -61,6 +78,7 @@ export default async function PatientPage({ params }: { params: Promise<{ id: st
         void: viewer.isOwner,
       }}
       myDoctorId={viewer.doctorId}
+      specialty={{ show, teeth, work, eyeExams, growth, vaccines, pregnancies }}
     />
   );
 }

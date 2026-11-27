@@ -15,6 +15,8 @@ import type { Viewer } from "@/lib/sections";
 import type { PlanId, ShopState } from "@/lib/shopState";
 import { cn } from "@/lib/utils";
 import { Chips, Field } from "./clinic/fields";
+import { ClinicTypeCard } from "./specialties/clinic-types";
+import type { ClinicType } from "@/lib/specialties";
 import { FormError } from "./form-error";
 import { useI18n } from "./i18n-provider";
 import { saveLanguage } from "./language";
@@ -49,6 +51,7 @@ export function SettingsScreen({
   print,
   hours,
   screenKey,
+  types,
 }: {
   viewer: Viewer;
   clinic: ClinicFacts;
@@ -57,6 +60,7 @@ export function SettingsScreen({
   print: PrintSettings;
   hours: HoursSettings;
   screenKey: string | null;
+  types: ClinicType[];
 }) {
   const { t, lang } = useI18n();
   const s = t.settings;
@@ -133,6 +137,7 @@ export function SettingsScreen({
               </div>
             </CardContent>
           </Card>
+          {owner && <ClinicTypeCard initial={types} />}
           {owner && <ServicesCard services={services} />}
           {owner && <HoursCard hours={hours} />}
           {owner && features.includes("prescriptions") && <PrintCard print={print} />}

@@ -215,3 +215,80 @@ export const expenses = sqliteTable("expenses", {
   createdAt: integer("created_at").notNull(),
   deletedAt: integer("deleted_at"),
 });
+
+export const dentalTeeth = sqliteTable("dental_teeth", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  patientId: integer("patient_id").notNull(),
+  tooth: integer("tooth").notNull(),
+  conditions: text("conditions").notNull().default("[]"),
+  surfaces: text("surfaces").notNull().default("{}"),
+  note: text("note").notNull().default(""),
+  updatedAt: integer("updated_at").notNull(),
+});
+
+export const dentalWork = sqliteTable("dental_work", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  patientId: integer("patient_id").notNull(),
+  visitId: integer("visit_id"),
+  tooth: integer("tooth"),
+  procedure: text("procedure").notNull(),
+  surfaces: text("surfaces").notNull().default("[]"),
+  status: text("status").notNull().default("planned"),
+  fee: integer("fee").notNull().default(0),
+  note: text("note").notNull().default(""),
+  chargeId: integer("charge_id"),
+  createdBy: text("created_by").notNull().default(""),
+  createdAt: integer("created_at").notNull(),
+  doneAt: integer("done_at"),
+});
+
+export const eyeExams = sqliteTable("eye_exams", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  visitId: integer("visit_id").notNull(),
+  patientId: integer("patient_id").notNull(),
+  data: text("data").notNull(),
+  createdAt: integer("created_at").notNull(),
+  updatedAt: integer("updated_at").notNull(),
+});
+
+export const vaccinations = sqliteTable("vaccinations", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  patientId: integer("patient_id").notNull(),
+  vaccine: text("vaccine").notNull(),
+  givenOn: text("given_on").notNull(),
+  batch: text("batch").notNull().default(""),
+  note: text("note").notNull().default(""),
+  createdBy: text("created_by").notNull().default(""),
+  createdAt: integer("created_at").notNull(),
+});
+
+export const pregnancies = sqliteTable("pregnancies", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  patientId: integer("patient_id").notNull(),
+  lmp: text("lmp").notNull(),
+  edd: text("edd").notNull(),
+  gravida: integer("gravida"),
+  para: integer("para"),
+  status: text("status").notNull().default("active"),
+  endedOn: text("ended_on").notNull().default(""),
+  outcome: text("outcome").notNull().default(""),
+  notes: text("notes").notNull().default(""),
+  createdAt: integer("created_at").notNull(),
+  updatedAt: integer("updated_at").notNull(),
+});
+
+export const ancChecks = sqliteTable("anc_checks", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  pregnancyId: integer("pregnancy_id").notNull(),
+  patientId: integer("patient_id").notNull(),
+  visitId: integer("visit_id"),
+  day: text("day").notNull(),
+  weightG: integer("weight_g"),
+  bpSys: integer("bp_sys"),
+  bpDia: integer("bp_dia"),
+  fhr: integer("fhr"),
+  fundalCm: integer("fundal_cm"),
+  presentation: text("presentation").notNull().default(""),
+  notes: text("notes").notNull().default(""),
+  createdAt: integer("created_at").notNull(),
+});

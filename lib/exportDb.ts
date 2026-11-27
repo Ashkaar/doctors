@@ -22,6 +22,12 @@ export const EXPORT_TABLES = [
   "services",
   "medicines",
   "expenses",
+  "dental_teeth",
+  "dental_work",
+  "eye_exams",
+  "vaccinations",
+  "pregnancies",
+  "anc_checks",
 ] as const;
 
 const PAGE = 500;
@@ -113,6 +119,12 @@ export function exportPatientJson(patientId: number): ReadableStream<Uint8Array>
       ["patient_file_data", "file_id IN (SELECT id FROM patient_files WHERE patient_id = ?)", [patientId]],
       ["charges", "patient_id = ?", [patientId]],
       ["payments", "patient_id = ?", [patientId]],
+      ["dental_teeth", "patient_id = ?", [patientId]],
+      ["dental_work", "patient_id = ?", [patientId]],
+      ["eye_exams", "patient_id = ?", [patientId]],
+      ["vaccinations", "patient_id = ?", [patientId]],
+      ["pregnancies", "patient_id = ?", [patientId]],
+      ["anc_checks", "patient_id = ?", [patientId]],
     ];
     for (const [i, [table, where, args]] of parts.entries()) {
       yield `${i ? "," : ""}${JSON.stringify(table)}:[`;

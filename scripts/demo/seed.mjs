@@ -174,5 +174,46 @@ for (const [back, category, description, amount] of [[3, "Rent", "November rent"
   await call("POST", "/api/expenses", { day: dayOf(back), category, description, amount });
 }
 
+// Specialty charts: the demo clinic is all kinds at once.
+await call("PUT", "/api/settings/clinic", { types: ["general", "dental", "eye", "children", "womens"] });
+const daysAgo = (n) => new Date(Date.now() - n * dayMs).toISOString().slice(0, 10);
+// Dental: Ahmed's teeth and a treatment plan.
+for (const [tooth, conditions, surfaces] of [
+  [16, ["filling"], { filling: ["o", "m"] }],
+  [26, ["caries"], { caries: ["o"] }],
+  [36, ["rootCanal", "crown"], {}],
+  [46, ["missing"], {}],
+  [11, ["fracture"], {}],
+  [37, ["caries"], { caries: ["d", "o"] }],
+]) await call("PUT", `/api/patients/${patients[0].id}/teeth/${tooth}`, { conditions, surfaces, note: "" });
+await call("POST", `/api/patients/${patients[0].id}/dental-work`, { tooth: 26, procedure: "filling", fee: 40_000_00, note: "Composite" });
+await call("POST", `/api/patients/${patients[0].id}/dental-work`, { tooth: 37, procedure: "filling", fee: 40_000_00 });
+await call("POST", `/api/patients/${patients[0].id}/dental-work`, { tooth: 46, procedure: "implant", fee: 750_000_00 });
+await call("POST", `/api/patients/${patients[0].id}/dental-work`, { tooth: null, procedure: "cleaning", fee: 25_000_00 });
+// Eye: an exam for Hawre (today's visit).
+const hawreVisit = (await db.execute({ sql: "SELECT id FROM visits WHERE patient_id = ? ORDER BY at DESC LIMIT 1", args: [patients[2].id] })).rows[0];
+if (hawreVisit) {
+  await call("PUT", `/api/visits/${Number(hawreVisit.id)}/eye`, {
+    od: { vaUnaided: "6/18", vaCorrected: "6/6", sph: -125, cyl: -50, axis: 90, add: 200, iop: 16, anterior: "Clear", posterior: "Healthy disc" },
+    os: { vaUnaided: "6/12", vaCorrected: "6/6", sph: -100, cyl: -25, axis: 85, add: 200, iop: 17, anterior: "Clear", posterior: "Healthy disc" },
+    pd: 64,
+    notes: "Reading glasses for near work.",
+  });
+}
+// Children: a baby with check-ups since birth and vaccines.
+const baby = (await call("POST", "/api/patients", { name: "Mina Karwan", phone: "0750 118 2290", gender: "f", birthDate: daysAgo(400), address: "Erbil" })).patient;
+for (const [back, weightG, heightMm, headMm] of [[400, 3200, 495, 340], [370, 4300, 540, 365], [340, 5300, 575, 385], [280, 6600, 625, 405], [220, 7400, 655, 420], [130, 8300, 695, 435], [40, 9000, 735, 448]]) {
+  const at = Date.now() - back * dayMs + 3 * dayMs;
+  await db.execute({ sql: "INSERT INTO visits (patient_id, doctor_id, at, day, complaint, diagnosis, vitals, created_by, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?)", args: [baby.id, karwan.id, at, daysAgo(back - 3), "Well-baby check", "Healthy", JSON.stringify({ weightG, heightMm, headMm }), "owner", at, at] });
+}
+for (const [vaccine, back] of [["BCG", 399], ["Hepatitis B (birth)", 399], ["OPV 0", 399], ["Pentavalent 1 (DTP-HepB-Hib)", 338], ["OPV 1", 338], ["Rotavirus 1", 338], ["Pneumococcal 1", 338], ["Pentavalent 2", 278], ["OPV 2", 278], ["IPV", 278], ["Rotavirus 2", 278], ["Pneumococcal 2", 278], ["Pentavalent 3", 218], ["OPV 3", 218], ["Pneumococcal 3", 218], ["Measles", 128]]) {
+  await call("POST", `/api/patients/${baby.id}/vaccinations`, { vaccine, givenOn: daysAgo(back), batch: "" });
+}
+// Women's health: Shilan is 24 weeks pregnant.
+const preg = (await call("POST", `/api/patients/${patients[3].id}/pregnancies`, { lmp: daysAgo(24 * 7 + 2), gravida: 2, para: 1, notes: "First baby: normal delivery 2023." })).pregnancy;
+for (const [back, weightG, bpSys, bpDia, fhr, fundalCm, presentation] of [[16 * 7, 61000, 110, 70, null, null, ""], [12 * 7, 62500, 112, 72, 150, 12, ""], [8 * 7, 64000, 115, 75, 148, 16, ""], [4 * 7, 65800, 118, 76, 145, 20, "Head"], [2, 67000, 120, 78, 142, 24, "Head"]]) {
+  await call("POST", `/api/pregnancies/${preg.id}/checks`, { day: daysAgo(back), weightG, bpSys, bpDia, fhr, fundalCm, presentation, notes: "" });
+}
+
 console.log(`Demo clinic ready at ${base}/${clinic}`);
 console.log(`Owner password: ${ownerPassword} · staff: Sara (doctor) sara-1234, Rezan (reception) rezan-1234, Hana (nurse) hana-1234`);
