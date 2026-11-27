@@ -13,8 +13,10 @@ import type { PlanId } from "./shopState";
 //   appointments, queue, patients with visit notes, and fees.
 // - Pro: a busier clinic: prescriptions (and saved medicines), lab results
 //   and files with lab and X-ray orders, expenses, several doctors.
-// - Advanced: the owner's numbers: reports, doctors' income shares, and
-//   exporting every record.
+// - Advanced: the owner's numbers: reports and doctors' income shares.
+//
+// Exporting the clinic's records is in every plan: the records belong to
+// the clinic, so the owner can always take them.
 
 const STARTER: readonly Section[] = ["dashboard", "appointments", "queue", "patients", "payments", "doctors", "staff", "settings"];
 const PRO: readonly Section[] = [...STARTER, "expenses", "medicines"];
@@ -30,8 +32,8 @@ export const FEATURES = ["prescriptions", "files", "manyDoctors", "shares", "exp
 export type Feature = (typeof FEATURES)[number];
 
 export const PLAN_FEATURES: Record<PlanId, readonly Feature[]> = {
-  starter: [],
-  pro: ["prescriptions", "files", "manyDoctors"],
+  starter: ["export"],
+  pro: ["export", "prescriptions", "files", "manyDoctors"],
   advanced: FEATURES,
 };
 

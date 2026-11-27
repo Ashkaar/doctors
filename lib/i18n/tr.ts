@@ -86,6 +86,22 @@ const tr: Messages = {
     none: "Şu an yeni bir şey yok.",
     markRead: "Tümünü okundu say",
     items: {
+      schedules: {
+        title: "Doktor çalışma saatleri",
+        text: "Her doktorun çalışma günlerini, saatlerini ve izinlerini belirleyin (Doktorlar ekranı, takvim düğmesi). Randevu verirken yalnızca bu saatlerdeki boş zamanlar gösterilir.",
+      },
+      receipts: {
+        title: "Makbuzlar",
+        text: "Hastanın günlük ücret ve ödemeleri için makbuz yazdırın: hastanın Ücretler sekmesinden veya Ücretler ekranından.",
+      },
+      activityLog: {
+        title: "Etkinlik kaydı",
+        text: "Sahip, hangi kaydı kimin açtığını, değiştirdiğini, sildiğini veya dışa aktardığını görebilir: Personel, sonra Etkinlik.",
+      },
+      exportAll: {
+        title: "Her planda dışa aktarma",
+        text: "Artık her sahip, planı ne olursa olsun kliniğin tüm kayıtlarını indirebilir.",
+      },
       launch: {
         title: "Doktorlar'a hoş geldiniz",
         text: "Randevular, bekleme salonu sırası, ziyaret notlarıyla hasta dosyaları, reçeteler, laboratuvar sonuçları, ücretler ve raporlar; İngilizce, Kürtçe, Arapça ve Türkçe.",
@@ -241,6 +257,20 @@ const tr: Messages = {
     pick: "Doktor",
     allDoctors: "Tüm doktorlar",
     needOne: "Önce bir doktor ekleyin (sahip: Doktorlar ekranı).",
+    schedule: "Çalışma saatleri",
+    scheduleTitle: (name: string) => `Çalışma saatleri: ${name}`,
+    scheduleText: "Randevu verirken yalnızca bu saatlerdeki boş zamanlar gösterilir; dışında kalan randevular için uyarı çıkar.",
+    ownWeek: "Kendi çalışma haftası",
+    ownWeekOn: "Günleri ve saatleri aşağıda belirleyin.",
+    ownWeekOff: (from: string, to: string) => `Kapalı: her gün kliniğin randevu saatleri (${from}–${to}).`,
+    ownWeekShort: "Kendi saatleri",
+    notWorking: "Çalışmıyor",
+    daysOff: "İzin günleri",
+    addDaysOff: "İzin ekle",
+    noDaysOff: "Yaklaşan izin yok.",
+    daysOffNote: "Tatil, kongre…",
+    badHours: "Saatleri kontrol edin: her gün başladıktan sonra bitmeli.",
+    badDays: "İzin günlerini kontrol edin: her izin ilk gününde veya sonra bitmeli.",
   },
 
   patients: {
@@ -284,6 +314,8 @@ const tr: Messages = {
     pickTitle: "Bir hasta seçin",
     pickNew: "Yeni hasta",
     since: (date: string) => `${date} tarihinden beri hasta`,
+    maybeSame: "Zaten hasta mı?",
+    maybeSameText: "İkinci bir dosya açmak yerine dosyasını açın; başka biriyse devam edin.",
   },
 
   visits: {
@@ -343,6 +375,7 @@ const tr: Messages = {
     fee: "Ücret",
     feeAdded: "Ücret eklendi.",
     unsaved: "Kaydedilmemiş değişiklikleriniz var.",
+    leaveUnsaved: "Bu ziyarette kaydedilmemiş değişiklikler var. Kaydetmeden çıkılsın mı?",
   },
 
   print: {
@@ -398,6 +431,9 @@ const tr: Messages = {
     noShow: "Gelmedi",
     count: (n: number) => `${n} randevu`,
     free: "Boş",
+    doctorOff: (name: string, note: string) => `${name} bu gün izinli${note ? ` (${note})` : ""}.`,
+    doctorClosed: (name: string) => `${name} bu gün çalışmıyor.`,
+    outsideHours: (name: string, from: string, to: string) => `${name} çalışma saatleri dışında (${from}–${to}).`,
   },
 
   queue: {
@@ -567,6 +603,65 @@ const tr: Messages = {
     exportCsv: "Tablolar (CSV)",
     exportTables: { patients: "Hastalar", visits: "Ziyaretler", appointments: "Randevular", charges: "Ücretler", payments: "Ödemeler", expenses: "Giderler" },
     exportNote: "Laboratuvar dosyaları ve röntgenler her hastanın sayfasından indirilir.",
+  },
+
+  receipt: {
+    title: "Makbuz",
+    print: "Makbuz yazdır",
+    back: "Hastaya dön",
+    nothing: "Bu gün ücret veya ödeme yok.",
+    item: "Kalem",
+    amount: "Tutar",
+    discountOf: (amount: string) => `İndirim ${amount}`,
+    fees: "Toplam ücret",
+    paid: "Ödendi",
+    stillOwed: "Kalan borç",
+    allPaid: "Borç yok",
+    thanks: "Teşekkür ederiz. Geçmiş olsun.",
+  },
+
+  activity: {
+    title: "Etkinlik",
+    intro: "Kimin giriş yaptığı ve hangi kaydı kimin açtığı, değiştirdiği, sildiği veya dışa aktardığı. Ayrıntılarda yalnızca kayıt numaraları yer alır.",
+    who: "Kişi",
+    everyone: "Herkes",
+    none: "Henüz kayıt yok.",
+    older: "Daha eskileri göster",
+    actions: {
+      signIn: "giriş yaptı",
+      signInAriloo: "Ariloo'dan giriş yaptı",
+      ownerPasswordSet: "sahip şifresini belirledi",
+      ownerPasswordChanged: "sahip şifresini değiştirdi",
+      unlock: "sahip ekranlarını açtı",
+      staffAdded: "personel girişi ekledi",
+      staffChanged: "personel girişini değiştirdi",
+      staffDeleted: "personel girişini sildi",
+      timeZone: "saat dilimini değiştirdi",
+      patientAdded: "hasta ekledi",
+      patientChanged: "hasta bilgilerini değiştirdi",
+      patientDeleted: "hasta sildi",
+      patientOpened: "hasta dosyası açtı",
+      patientExported: "hasta kaydını dışa aktardı",
+      visitOpened: "ziyaret açtı",
+      visitSaved: "ziyaret kaydetti",
+      fileAdded: "dosya ekledi",
+      fileDeleted: "dosya sildi",
+      orderAdded: "tetkik istedi",
+      appointmentBooked: "randevu verdi",
+      appointmentMoved: "randevu taşıdı",
+      appointmentDone: "randevuyu bakıldı olarak işaretledi",
+      appointmentCancelled: "randevu iptal etti",
+      appointmentNoShow: "gelmedi olarak işaretledi",
+      queueAdded: "sıraya birini ekledi",
+      doctorAdded: "doktor ekledi",
+      doctorChanged: "doktoru değiştirdi",
+      feeAdded: "ücret ekledi",
+      feeCancelled: "ücreti iptal etti",
+      paymentAdded: "ödeme aldı",
+      paymentCancelled: "ödemeyi iptal etti",
+      export: "kayıtları dışa aktardı",
+      screenLink: "yeni bekleme salonu ekranı bağlantısı oluşturdu",
+    },
   },
 
   errors: {

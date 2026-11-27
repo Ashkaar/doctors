@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { minutesToTime, timeToMinutes, type Appointment, type Doctor, type PatientSummary, type QueueTicket } from "@/lib/clinic";
+import { hoursOn, minutesToTime, timeToMinutes, type Appointment, type Doctor, type PatientSummary, type QueueTicket } from "@/lib/clinic";
 import { errorMessage, sendJson } from "@/lib/clientApi";
 import { FormError } from "../form-error";
 import { useI18n } from "../i18n-provider";
@@ -9,6 +9,7 @@ import { PatientPicker } from "../patients/patient-picker";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Input } from "../ui/input";
+import { weekdayOf } from "@/lib/format";
 import { Field, NativeSelect } from "./fields";
 
 export function DoctorSelect({ doctors, value, onChange, id }: { doctors: Doctor[]; value: number | null; onChange: (id: number) => void; id?: string }) {
@@ -38,6 +39,7 @@ export function BookDialog({
   startMin: initialStart,
   patient: initialPatient,
   appointment,
+  hours,
   onSaved,
 }: {
   open: boolean;
@@ -45,6 +47,8 @@ export function BookDialog({
   doctors: Doctor[];
   today: string;
   showAlerts: boolean;
+  // The clinic's booking hours, for doctors without their own week.
+  hours?: { startMin: number; endMin: number };
   day?: string;
   doctorId?: number | null;
   startMin?: number;
@@ -65,6 +69,19 @@ export function BookDialog({
   const [reason, setReason] = useState(appointment?.reason ?? "");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // A warning (not a block: reception may book outside hours on purpose).
+  const at = timeToMinutes(time);
+  const h = doctor && /^\d{4}-\d{2}-\d{2}$/.test(day) ? hoursOn(doctor.schedule, day, weekdayOf(day), hours ?? { startMin: 0, endMin: 24 * 60 }) : null;
+  const warning = !h || !doctor
+    ? null
+    : "off" in h
+      ? h.off === "off"
+        ? a.doctorOff(doctor.name, h.note)
+        : a.doctorClosed(doctor.name)
+      : at !== null && (at < h.startMin || at >= h.endMin)
+        ? a.outsideHours(doctor.name, minutesToTime(h.startMin), minutesToTime(h.endMin))
+        : null;
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -126,6 +143,7 @@ export function BookDialog({
           <Field label={a.reason}>
             {(id) => <Input id={id} value={reason} onChange={(e) => setReason(e.target.value)} placeholder={a.reasonPlaceholder} maxLength={200} />}
           </Field>
+          {warning && <p className="rounded-2xl bg-accent-100 px-4 py-2.5 text-sm font-semibold text-accent-900 dark:bg-accent-500/15 dark:text-accent-200">{warning}</p>}
           <FormError message={error} />
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>

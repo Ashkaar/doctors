@@ -7,6 +7,7 @@ import {
   ListPlusIcon,
   PencilIcon,
   PillIcon,
+  PrinterIcon,
   StethoscopeIcon,
   Trash2Icon,
   TriangleAlertIcon,
@@ -62,6 +63,7 @@ export interface PatientAbilities {
 export function PatientFile({
   patient,
   today,
+  hours,
   doctors,
   visits,
   rxVisitIds,
@@ -75,6 +77,7 @@ export function PatientFile({
 }: {
   patient: Patient;
   today: string;
+  hours: { startMin: number; endMin: number };
   doctors: Doctor[];
   visits: VisitSummary[];
   rxVisitIds: number[];
@@ -320,6 +323,12 @@ export function PatientFile({
                     {money.balance > 0 ? fmt(money.balance) : t.payments.balanceClear}
                   </p>
                 </div>
+                <Button asChild variant="ghost">
+                  <Link href={shop.href(`/dashboard/patients/${patient.id}/receipt`)}>
+                    <PrinterIcon />
+                    {t.receipt.print}
+                  </Link>
+                </Button>
                 <Button variant="outline" onClick={() => setDialog("fee")}>
                   {t.payments.addFee}
                 </Button>
@@ -335,7 +344,7 @@ export function PatientFile({
 
       {dialog === "edit" && <PatientDialog open onOpenChange={() => setDialog(null)} patient={patient} showAlerts={can.alerts} today={today} onSaved={() => refresh()} />}
       {dialog === "book" && (
-        <BookDialog open onOpenChange={() => setDialog(null)} doctors={active} today={today} showAlerts={can.alerts} patient={patient} doctorId={myDoctorId} onSaved={() => refresh()} />
+        <BookDialog open onOpenChange={() => setDialog(null)} doctors={active} today={today} hours={hours} showAlerts={can.alerts} patient={patient} doctorId={myDoctorId} onSaved={() => refresh()} />
       )}
       {dialog === "queue" && (
         <WalkInDialog
@@ -387,13 +396,29 @@ export function PatientFile({
 }
 
 // Fees and payments, newest first, in one list.
-export function MoneyList({ charges, payments, canVoid, onChange, showPatient = false }: { charges: Charge[]; payments: Payment[]; canVoid: boolean; onChange: () => void; showPatient?: boolean }) {
+export function MoneyList({
+  charges,
+  payments,
+  canVoid,
+  onChange,
+  showPatient = false,
+  receiptDay,
+}: {
+  charges: Charge[];
+  payments: Payment[];
+  canVoid: boolean;
+  onChange: () => void;
+  showPatient?: boolean;
+  // When set, each row links to its patient's receipt for this day.
+  receiptDay?: string;
+}) {
   const { t, dateTime, money } = useI18n();
+  const shop = useShop();
   const m = t.payments;
   const [cancel, setCancel] = useState<{ kind: "charge" | "payment"; id: number } | null>(null);
   const rows = [
-    ...charges.map((c) => ({ kind: "charge" as const, id: c.id, at: c.at, label: c.description, who: c.patientName, amount: c.amount - c.discount, extra: c.discount ? `−${money(c.discount)}` : "", voided: c.voided, by: c.createdBy })),
-    ...payments.map((p) => ({ kind: "payment" as const, id: p.id, at: p.at, label: m.methods[p.method], who: p.patientName, amount: p.amount, extra: "", voided: p.voided, by: p.createdBy })),
+    ...charges.map((c) => ({ kind: "charge" as const, id: c.id, patientId: c.patientId, at: c.at, label: c.description, who: c.patientName, amount: c.amount - c.discount, extra: c.discount ? `−${money(c.discount)}` : "", voided: c.voided, by: c.createdBy })),
+    ...payments.map((p) => ({ kind: "payment" as const, id: p.id, patientId: p.patientId, at: p.at, label: m.methods[p.method], who: p.patientName, amount: p.amount, extra: "", voided: p.voided, by: p.createdBy })),
   ].sort((a, b) => b.at - a.at);
   if (rows.length === 0) return <p className="py-10 text-center text-sm text-muted-foreground">{m.none}</p>;
   return (
@@ -422,6 +447,13 @@ export function MoneyList({ charges, payments, canVoid, onChange, showPatient = 
               </span>
               {r.extra && <span className="tabular block text-[11px] text-muted-foreground">{r.extra}</span>}
             </span>
+            {receiptDay && !r.voided && (
+              <Button asChild variant="ghost" size="icon-sm" aria-label={t.receipt.print} title={t.receipt.print}>
+                <Link href={shop.href(`/dashboard/patients/${r.patientId}/receipt?day=${receiptDay}`)}>
+                  <PrinterIcon />
+                </Link>
+              </Button>
+            )}
             {canVoid && !r.voided && (
               <Button variant="ghost" size="icon-sm" aria-label={r.kind === "charge" ? m.cancelFee : m.cancelPayment} onClick={() => setCancel({ kind: r.kind, id: r.id })}>
                 <Trash2Icon />

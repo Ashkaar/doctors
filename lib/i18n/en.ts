@@ -91,6 +91,22 @@ const en = {
     markRead: "Mark all as read",
     // One entry per update in lib/updates.ts: { title, text }.
     items: {
+      schedules: {
+        title: "Doctors' working hours",
+        text: "Set each doctor's working days, hours and days off (Doctors screen, the calendar button). Booking shows free times only in those hours and warns outside them.",
+      },
+      receipts: {
+        title: "Receipts",
+        text: "Print a receipt for a patient's fees and payments of the day, from the patient's Fees tab or the Fees screen.",
+      },
+      activityLog: {
+        title: "Activity log",
+        text: "The owner can see who opened, changed, deleted or exported which record: Staff, then Activity.",
+      },
+      exportAll: {
+        title: "Export on every plan",
+        text: "Every owner can now download all of the clinic's records, whatever the plan.",
+      },
       launch: {
         title: "Welcome to Doctors",
         text: "Appointments, the waiting-room queue, patient files with visit notes, prescriptions, lab results, fees and reports, in English, Kurdish, Arabic and Turkish.",
@@ -247,6 +263,20 @@ const en = {
     pick: "Doctor",
     allDoctors: "All doctors",
     needOne: "Add a doctor first (owner: Doctors screen).",
+    schedule: "Working hours",
+    scheduleTitle: (name: string) => `Working hours: ${name}`,
+    scheduleText: "Booking shows free times only in these hours, and warns when a booking falls outside them.",
+    ownWeek: "Own working week",
+    ownWeekOn: "Set the days and hours below.",
+    ownWeekOff: (from: string, to: string) => `Off: the clinic's booking hours every day (${from}–${to}).`,
+    ownWeekShort: "Own hours",
+    notWorking: "Not working",
+    daysOff: "Days off",
+    addDaysOff: "Add days off",
+    noDaysOff: "No days off coming up.",
+    daysOffNote: "Holiday, conference…",
+    badHours: "Check the hours: each day must end after it starts.",
+    badDays: "Check the days off: each must end on or after its first day.",
   },
 
   patients: {
@@ -290,6 +320,8 @@ const en = {
     pickTitle: "Choose a patient",
     pickNew: "New patient",
     since: (date: string) => `Patient since ${date}`,
+    maybeSame: "Already a patient?",
+    maybeSameText: "Open their file instead of making a second one, or carry on if this is someone else.",
   },
 
   visits: {
@@ -349,6 +381,7 @@ const en = {
     fee: "Fee",
     feeAdded: "Fee added.",
     unsaved: "You have changes that aren't saved.",
+    leaveUnsaved: "This visit has changes that aren't saved. Leave without saving?",
   },
 
   print: {
@@ -404,6 +437,9 @@ const en = {
     noShow: "Didn't come",
     count: (n: number) => (n === 1 ? "1 appointment" : `${n} appointments`),
     free: "Free",
+    doctorOff: (name: string, note: string) => `${name} is off this day${note ? ` (${note})` : ""}.`,
+    doctorClosed: (name: string) => `${name} doesn't work on this day.`,
+    outsideHours: (name: string, from: string, to: string) => `Outside ${name}'s hours (${from}–${to}).`,
   },
 
   queue: {
@@ -573,6 +609,65 @@ const en = {
     exportCsv: "Spreadsheets (CSV)",
     exportTables: { patients: "Patients", visits: "Visits", appointments: "Appointments", charges: "Fees", payments: "Payments", expenses: "Expenses" },
     exportNote: "Lab files and X-rays are downloaded from each patient's page.",
+  },
+
+  receipt: {
+    title: "Receipt",
+    print: "Print receipt",
+    back: "Back to the patient",
+    nothing: "No fees or payments on this day.",
+    item: "Item",
+    amount: "Amount",
+    discountOf: (amount: string) => `Discount ${amount}`,
+    fees: "Total fees",
+    paid: "Paid",
+    stillOwed: "Still owed",
+    allPaid: "Nothing owed",
+    thanks: "Thank you. Get well soon.",
+  },
+
+  activity: {
+    title: "Activity",
+    intro: "Who signed in, and who opened, changed, deleted or exported which record. Details name record numbers only.",
+    who: "Person",
+    everyone: "Everyone",
+    none: "Nothing recorded yet.",
+    older: "Show older",
+    actions: {
+      signIn: "signed in",
+      signInAriloo: "signed in from Ariloo",
+      ownerPasswordSet: "set the owner password",
+      ownerPasswordChanged: "changed the owner password",
+      unlock: "unlocked owner screens",
+      staffAdded: "added a staff login",
+      staffChanged: "changed a staff login",
+      staffDeleted: "deleted a staff login",
+      timeZone: "changed the time zone",
+      patientAdded: "added a patient",
+      patientChanged: "changed a patient's details",
+      patientDeleted: "deleted a patient",
+      patientOpened: "opened a patient's file",
+      patientExported: "exported a patient's record",
+      visitOpened: "opened a visit",
+      visitSaved: "saved a visit",
+      fileAdded: "added a file",
+      fileDeleted: "deleted a file",
+      orderAdded: "asked for a test",
+      appointmentBooked: "booked an appointment",
+      appointmentMoved: "moved an appointment",
+      appointmentDone: "marked an appointment seen",
+      appointmentCancelled: "cancelled an appointment",
+      appointmentNoShow: "marked a no-show",
+      queueAdded: "added someone to the queue",
+      doctorAdded: "added a doctor",
+      doctorChanged: "changed a doctor",
+      feeAdded: "added a fee",
+      feeCancelled: "cancelled a fee",
+      paymentAdded: "took a payment",
+      paymentCancelled: "cancelled a payment",
+      export: "exported the records",
+      screenLink: "made a new waiting-room screen link",
+    },
   },
 
   errors: {

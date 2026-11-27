@@ -247,7 +247,11 @@ export const SCHEMA: string[] = [
 ];
 
 // Columns added to tables after they first shipped: [table, column, definition].
-export const ADDED_COLUMNS: [string, string, string][] = [];
+export const ADDED_COLUMNS: [string, string, string][] = [
+  // A doctor's working week and days off (JSON, lib/clinic.ts DoctorSchedule);
+  // "" = the clinic's booking hours every day.
+  ["doctors", "schedule", "TEXT NOT NULL DEFAULT ''"],
+];
 
 async function addMissingColumns(client: Client): Promise<void> {
   const tables = [...new Set(ADDED_COLUMNS.map(([table]) => table))];

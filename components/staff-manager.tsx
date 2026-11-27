@@ -1,6 +1,7 @@
 "use client";
 
-import { PencilIcon, PlusIcon, Trash2Icon, UserRoundIcon } from "lucide-react";
+import { HistoryIcon, PencilIcon, PlusIcon, Trash2Icon, UserRoundIcon } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import { errorMessage, sendJson } from "@/lib/clientApi";
@@ -12,6 +13,7 @@ import { FormError } from "./form-error";
 import { useI18n } from "./i18n-provider";
 import { NAV } from "./nav";
 import { PageBody, PageHeader } from "./page-header";
+import { useShop } from "./shop-provider";
 import { PasswordInput } from "./password-input";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
@@ -24,6 +26,7 @@ import { Switch } from "./ui/switch";
 
 export function StaffManager({ initial }: { initial: StaffUser[] }) {
   const { t, date } = useI18n();
+  const { href } = useShop();
   const [staff, setStaff] = useState(initial);
   const [editing, setEditing] = useState<StaffUser | "new" | null>(null);
   const [deleting, setDeleting] = useState<StaffUser | null>(null);
@@ -47,6 +50,12 @@ export function StaffManager({ initial }: { initial: StaffUser[] }) {
   return (
     <PageBody>
       <PageHeader title={t.staff.title} description={t.staff.intro}>
+        <Button asChild variant="outline">
+          <Link href={href("/dashboard/staff/activity")}>
+            <HistoryIcon />
+            {t.activity.title}
+          </Link>
+        </Button>
         <Button onClick={() => setEditing("new")}>
           <PlusIcon />
           {t.staff.add}

@@ -53,6 +53,7 @@ export const doctors = sqliteTable("doctors", {
   slotMinutes: integer("slot_minutes").notNull().default(15),
   active: integer("active").notNull().default(1),
   createdAt: integer("created_at").notNull(),
+  schedule: text("schedule").notNull().default(""),
 });
 
 export const patients = sqliteTable("patients", {

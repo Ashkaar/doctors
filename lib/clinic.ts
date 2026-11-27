@@ -11,6 +11,54 @@ const cents = z.number().int().min(0).max(1_000_000_000_00);
 
 // ---- Doctors ---------------------------------------------------------------
 
+// A doctor's week: for each weekday (0 = Sunday) the hours they see
+// patients ([first, last] minutes after midnight), or null when they don't
+// work that day; and their days off (holidays, leave), inclusive.
+// `week: null` means "the clinic's booking hours, every day".
+export interface DoctorSchedule {
+  week: ([number, number] | null)[] | null;
+  off: { from: string; to: string; note: string }[];
+}
+
+export const EMPTY_SCHEDULE: DoctorSchedule = { week: null, off: [] };
+
+const minute = z.number().int().min(0).max(24 * 60);
+export const scheduleSchema = z.object({
+  week: z
+    .array(z.tuple([minute, minute]).refine(([a, b]) => b > a).nullable())
+    .length(7)
+    .nullable(),
+  off: z
+    .array(z.object({ from: day, to: day, note: short(80).default("") }).refine((o) => o.to >= o.from))
+    .max(60)
+    .default([]),
+});
+
+export function parseSchedule(raw: string): DoctorSchedule {
+  if (!raw) return EMPTY_SCHEDULE;
+  try {
+    const r = scheduleSchema.safeParse(JSON.parse(raw));
+    return r.success ? r.data : EMPTY_SCHEDULE;
+  } catch {
+    return EMPTY_SCHEDULE;
+  }
+}
+
+// The doctor's hours on `day` ("YYYY-MM-DD", weekday `weekday`), or why
+// they aren't working: "off" (a day off) or "closed" (not a working day).
+export function hoursOn(
+  schedule: DoctorSchedule,
+  day: string,
+  weekday: number,
+  clinic: { startMin: number; endMin: number },
+): { startMin: number; endMin: number } | { off: "off" | "closed"; note: string } {
+  const off = schedule.off.find((o) => day >= o.from && day <= o.to);
+  if (off) return { off: "off", note: off.note };
+  if (!schedule.week) return clinic;
+  const h = schedule.week[weekday];
+  return h ? { startMin: h[0], endMin: h[1] } : { off: "closed", note: "" };
+}
+
 export interface Doctor {
   id: number;
   name: string;
@@ -23,6 +71,7 @@ export interface Doctor {
   shareBp: number;
   slotMinutes: number;
   active: boolean;
+  schedule: DoctorSchedule;
 }
 
 export const doctorSchema = z.object({
@@ -35,6 +84,7 @@ export const doctorSchema = z.object({
   shareBp: z.number().int().min(0).max(10_000).default(0),
   slotMinutes: z.number().int().min(5).max(240).default(15),
   active: z.boolean().default(true),
+  schedule: scheduleSchema.optional(),
 });
 
 // ---- Patients --------------------------------------------------------------

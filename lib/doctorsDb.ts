@@ -1,7 +1,7 @@
 import "server-only";
 import { and, asc, eq, ne } from "drizzle-orm";
 import type { z } from "zod";
-import type { Doctor, doctorSchema } from "./clinic";
+import { parseSchedule, type Doctor, type doctorSchema } from "./clinic";
 import { getDb } from "./db";
 import { doctors } from "./db/schema";
 
@@ -17,6 +17,7 @@ function toDoctor(r: typeof doctors.$inferSelect): Doctor {
     shareBp: r.shareBp,
     slotMinutes: r.slotMinutes,
     active: r.active === 1,
+    schedule: parseSchedule(r.schedule),
   };
 }
 
@@ -56,6 +57,11 @@ export async function countActiveDoctors(exceptId = 0): Promise<number> {
 
 type DoctorInput = z.infer<typeof doctorSchema>;
 
+// The row to write: the schedule is kept as JSON, and left alone when not sent.
+function toRow({ schedule, active, ...rest }: DoctorInput) {
+  return { ...rest, active: active ? 1 : 0, ...(schedule ? { schedule: JSON.stringify(schedule) } : {}) };
+}
+
 // A staff login is linked to at most one doctor.
 async function unlinkStaff(staffId: number | null, exceptId: number) {
   if (!staffId) return;
@@ -70,7 +76,7 @@ export async function createDoctor(input: DoctorInput): Promise<Doctor> {
   const db = await getDb();
   const [row] = await db
     .insert(doctors)
-    .values({ ...input, active: input.active ? 1 : 0, createdAt: Date.now() })
+    .values({ ...toRow(input), createdAt: Date.now() })
     .returning();
   await unlinkStaff(row.staffId, row.id);
   return toDoctor(row);
@@ -80,7 +86,7 @@ export async function updateDoctor(id: number, input: DoctorInput): Promise<Doct
   const db = await getDb();
   const [row] = await db
     .update(doctors)
-    .set({ ...input, active: input.active ? 1 : 0 })
+    .set(toRow(input))
     .where(eq(doctors.id, id))
     .returning();
   if (!row) return null;
