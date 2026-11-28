@@ -61,6 +61,10 @@ const sara = (await call("POST", "/api/doctors", { name: "Dr. Sara Ahmed", speci
 const karwan = (await call("POST", "/api/doctors", { name: "Dr. Karwan Ali", specialty: "Paediatrics", room: "2", licence: "KRG-31877", shareBp: 4000, slotMinutes: 20 })).doctor;
 const saraLogin = (await call("POST", "/api/staff", { name: "Sara", password: "sara-1234", role: "doctor", permissions: ["dashboard", "appointments", "queue", "patients", "medicines"] })).user;
 await call("PATCH", `/api/doctors/${sara.id}`, { ...sara, staffId: saraLogin.id });
+// Dr. Karwan works afternoons, Saturday to Thursday, with a conference next week.
+const week = [[14 * 60, 20 * 60], [14 * 60, 20 * 60], [14 * 60, 20 * 60], [14 * 60, 20 * 60], [14 * 60, 20 * 60], null, [9 * 60, 20 * 60]];
+const nextWeek = new Date(Date.now() + 8 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+await call("PATCH", `/api/doctors/${karwan.id}`, { ...karwan, schedule: { week, off: [{ from: nextWeek, to: nextWeek, note: "Conference" }] } });
 await call("POST", "/api/staff", { name: "Rezan", password: "rezan-1234", role: "reception", permissions: ["dashboard", "appointments", "queue", "patients", "payments"] });
 await call("POST", "/api/staff", { name: "Hana", password: "hana-1234", role: "nurse", permissions: ["dashboard", "queue", "patients"] });
 

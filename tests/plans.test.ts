@@ -18,9 +18,11 @@ describe("plans", () => {
     expect(PLAN_SECTIONS.starter).toEqual(expect.arrayContaining(["appointments", "queue", "patients", "payments"]));
     expect(PLAN_SECTIONS.starter).not.toContain("expenses");
     expect(PLAN_SECTIONS.pro).not.toContain("reports");
-    expect(featuresInPlan("starter", false)).toEqual([]);
+    expect(featuresInPlan("starter", false)).toEqual(["export"]);
     expect(featuresInPlan("pro", false)).toEqual(expect.arrayContaining(["prescriptions", "files", "manyDoctors"]));
-    expect(featuresInPlan("pro", false)).not.toContain("export");
+    expect(featuresInPlan("pro", false)).not.toContain("shares");
+    // Owners can always take their records.
+    for (const plan of ["starter", "pro", "advanced"] as const) expect(featuresInPlan(plan, false)).toContain("export");
     expect(sectionsInPlan(null, false)).toEqual([]);
     expect(sectionsInPlan(null, true)).toEqual(SECTIONS);
   });

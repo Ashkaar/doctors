@@ -91,7 +91,7 @@ export function PaymentsScreen({
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card className="p-2 lg:col-span-2">
-          <MoneyList charges={charges} payments={payments} canVoid={canVoid} onChange={() => router.refresh()} showPatient />
+          <MoneyList charges={charges} payments={payments} canVoid={canVoid} onChange={() => router.refresh()} showPatient receiptDay={day} />
         </Card>
         <Card className="h-fit">
           <CardHeader>

@@ -109,13 +109,28 @@ export function VisitEditor({
   const hasAlerts = Boolean(patient.allergies?.trim() || patient.conditions?.trim());
   const doctor = doctors.find((d) => d.id === doctorId);
 
-  // Leaving with unsaved changes asks first.
+  // Leaving with unsaved changes asks first: closing or reloading the tab,
+  // and following a link inside the app (the menu, the patient's name…).
   useEffect(() => {
     if (!dirty) return;
     const warn = (e: BeforeUnloadEvent) => e.preventDefault();
+    const click = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const link = (e.target as Element | null)?.closest?.("a[href]");
+      if (!(link instanceof HTMLAnchorElement) || link.target === "_blank" || link.hasAttribute("download")) return;
+      if (link.origin !== window.location.origin || link.pathname === window.location.pathname) return;
+      if (!window.confirm(v.leaveUnsaved)) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
     window.addEventListener("beforeunload", warn);
-    return () => window.removeEventListener("beforeunload", warn);
-  }, [dirty]);
+    document.addEventListener("click", click, true);
+    return () => {
+      window.removeEventListener("beforeunload", warn);
+      document.removeEventListener("click", click, true);
+    };
+  }, [dirty, v.leaveUnsaved]);
 
   const bmi = useMemo(() => {
     const w = num(vitals.weight);

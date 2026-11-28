@@ -19,17 +19,21 @@ colour from Ariloo).
 | Owner password, staff logins with roles (doctor, nurse, reception) and per-screen access, owner unlock on shared devices | Done |
 | Today: waiting, seen, booked, fees, the queue now, up next | Done |
 | Doctors: specialty, room, licence, appointment length, linked login, income share | Done |
+| Doctors' working weeks and days off: free times follow them, booking outside them warns | Done |
 | Appointments: day view per doctor, free slots, book, move, arrived (joins the queue), seen, no-show, cancel | Done |
 | Queue: numbered turns per day, walk-ins, call next, see now, done/left; refreshes every 10 s | Done |
 | Waiting-room screen (TV/tablet): numbers, doctor and room only, chime on a new call | Done |
-| Patients: file number, search by name/phone/file, details, medical alerts (allergies, conditions) | Done |
+| Patients: file number, search by name/phone/file, details, medical alerts (allergies, conditions), warning when a new patient may already have a file | Done |
 | Visits: vitals (with BMI), complaint, history, examination, diagnosis, plan, follow-up | Done |
 | Prescriptions from saved medicines, printed on A5 or A4 with the clinic's logo | Done |
 | Lab and imaging orders with results; lab sheets, X-rays and PDFs on the patient's file | Done |
 | Fees from a price list, discounts, part payments, balances owed, cash/card/transfer | Done |
+| Printed receipts per patient and day (A5/A4, nothing medical on them) | Done |
 | Expenses by month and category | Done |
 | Reports: fees, received, expenses, doctors' shares, net, by doctor/service/day/method | Done |
-| Owner export (JSON, CSV), one patient's full record, deleting a patient | Done |
+| Owner export (JSON, CSV) on every plan, one patient's full record, deleting a patient | Done |
+| Activity log for the owner: who signed in and who opened, changed, deleted or exported which record | Done |
+| Leaving a visit with unsaved changes asks first (closing the tab and links inside the app) | Done |
 | Installable app (PWA) | Done |
 | SMS / WhatsApp reminders, online booking for patients | Not planned yet |
 
@@ -39,12 +43,15 @@ colour from Ariloo).
 A 7-day trial has everything.
 
 - **Starter**: Today, appointments, queue and waiting-room screen, patients
-  with visit notes and vitals, fees and payments, staff logins, one doctor.
+  with visit notes and vitals, fees, payments and receipts, doctors'
+  working hours, staff logins and the activity log, one doctor.
 - **Pro**: everything in Starter, plus prescriptions (printed, with saved
   medicines), lab and imaging orders with results and files, expenses, and
   several doctors.
-- **Advanced**: everything in Pro, plus reports, doctors' income shares and
-  exporting every record.
+- **Advanced**: everything in Pro, plus reports and doctors' income shares.
+
+Every plan lets the owner export all of the clinic's records: they belong to
+the clinic.
 
 ## Privacy
 
@@ -138,7 +145,8 @@ node scripts/demo/seed.mjs http://localhost:3000
 `registry.mjs` makes a stand-in Ariloo database with three clinics:
 `city-clinic` (trial; filled by `seed.mjs` with two doctors, ten patients,
 today's appointments and queue, visits, prescriptions, lab orders, fees and
-24 days of history), `late-clinic` (Starter plan, payment overdue) and
+24 days of history; Dr. Karwan works Saturday to Thursday with a day off
+next week), `late-clinic` (Starter plan, payment overdue) and
 `closed-clinic` (expired). Open http://localhost:3000/city-clinic and sign
 in as Owner (`demo-owner-1`), Sara (doctor, `sara-1234`), Rezan (reception,
 `rezan-1234`) or Hana (nurse, `hana-1234`). Delete `.demo/` to start again.
@@ -168,3 +176,5 @@ Show each on the device it is used on:
 | Reports | `/dashboard/reports` | desktop |
 | Queue and Today on a phone | `/dashboard/queue`, `/dashboard` | phone |
 | Staff roles | `/dashboard/staff` → Add staff | laptop |
+| Doctor's working hours | `/dashboard/doctors` → calendar button | laptop |
+| Receipt | `/dashboard/patients/<id>/receipt` | paper / desktop |

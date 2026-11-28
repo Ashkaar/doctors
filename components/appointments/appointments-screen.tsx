@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import type { HoursSettings } from "@/lib/clinicSettings";
-import { minutesToTime, type Appointment, type AppointmentStatus, type Doctor, type QueueTicket } from "@/lib/clinic";
+import { hoursOn, minutesToTime, type Appointment, type AppointmentStatus, type Doctor, type QueueTicket } from "@/lib/clinic";
 import { errorMessage, getJson, sendJson } from "@/lib/clientApi";
 import { addDays, weekdayOf } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -89,9 +89,10 @@ export function AppointmentsScreen({
 
   // Free slots for the chosen doctor (when one is chosen), between bookings.
   const doctor = doctors.find((d) => d.id === doctorId);
+  const doctorHours = doctor ? hoursOn(doctor.schedule, day, weekdayOf(day), hours) : null;
   const slots: number[] = [];
-  if (doctor && day >= today) {
-    for (let m = hours.startMin; m + doctor.slotMinutes <= hours.endMin; m += doctor.slotMinutes) {
+  if (doctor && doctorHours && "startMin" in doctorHours && day >= today) {
+    for (let m = doctorHours.startMin; m + doctor.slotMinutes <= doctorHours.endMin; m += doctor.slotMinutes) {
       const busy = live.some((x) => x.status !== "noShow" && x.startMin < m + doctor.slotMinutes && x.startMin + x.durationMin > m);
       if (!busy) slots.push(m);
     }
@@ -204,6 +205,11 @@ export function AppointmentsScreen({
             </ul>
           )}
         </Card>
+        {doctor && doctorHours && "off" in doctorHours && (
+          <Card className="h-fit bg-accent-50 p-4 text-sm font-semibold text-accent-900 dark:bg-accent-500/10 dark:text-accent-200">
+            {doctorHours.off === "off" ? a.doctorOff(doctor.name, doctorHours.note) : a.doctorClosed(doctor.name)}
+          </Card>
+        )}
         {doctor && slots.length > 0 && (
           <Card className="h-fit p-4">
             <p className="mb-3 text-sm font-extrabold">
@@ -227,6 +233,7 @@ export function AppointmentsScreen({
           doctors={doctors}
           today={today}
           showAlerts={showAlerts}
+          hours={hours}
           day={day}
           doctorId={doctorId}
           startMin={booking.startMin}

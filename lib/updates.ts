@@ -13,7 +13,13 @@ export interface Update {
   at: string;
 }
 
-export const UPDATES: Update[] = [{ id: "launch", at: "2026-11-22T00:00:00Z" }];
+export const UPDATES: Update[] = [
+  { id: "exportAll", at: "2026-11-27T12:03:00Z" },
+  { id: "activityLog", at: "2026-11-27T12:02:00Z" },
+  { id: "receipts", at: "2026-11-27T12:01:00Z" },
+  { id: "schedules", at: "2026-11-27T12:00:00Z" },
+  { id: "launch", at: "2026-11-22T00:00:00Z" },
+];
 
 export function updatesSince(createdAtMs: number): Update[] {
   return UPDATES.filter((u) => Date.parse(u.at) > createdAtMs);

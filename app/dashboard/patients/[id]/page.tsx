@@ -9,7 +9,7 @@ import { listServices, patientMoney } from "@/lib/moneyDb";
 import { requireSectionPage } from "@/lib/pageAccess";
 import { getPatient } from "@/lib/patientsDb";
 import { patientAppointments } from "@/lib/scheduleDb";
-import { requestToday } from "@/lib/settingsDb";
+import { getHours, requestToday } from "@/lib/settingsDb";
 import { listOrders, listVisits, visitsWithPrescription } from "@/lib/visitsDb";
 
 export default async function PatientPage({ params }: { params: Promise<{ id: string }> }) {
@@ -22,8 +22,9 @@ export default async function PatientPage({ params }: { params: Promise<{ id: st
   const full = viewer.clinical === "full";
   const withFiles = full && features.includes("files");
   const withFees = viewer.sections.includes("payments");
-  const [{ day }, doctors, visits, appointments, files, orders, money, services, withRx] = await Promise.all([
+  const [{ day }, hours, doctors, visits, appointments, files, orders, money, services, withRx] = await Promise.all([
     requestToday(),
+    getHours(),
     listDoctors(),
     listVisits(id, viewer.clinical),
     viewer.sections.includes("appointments") ? patientAppointments(id) : Promise.resolve([]),
@@ -38,6 +39,7 @@ export default async function PatientPage({ params }: { params: Promise<{ id: st
     <PatientFile
       patient={patient}
       today={day}
+      hours={hours}
       doctors={doctors}
       visits={visits}
       rxVisitIds={[...withRx]}

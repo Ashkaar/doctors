@@ -87,6 +87,22 @@ const ar: Messages = {
     none: "لا جديد الآن.",
     markRead: "تعليم الكل كمقروء",
     items: {
+      schedules: {
+        title: "ساعات عمل الأطباء",
+        text: "حدد أيام عمل كل طبيب وساعاته وإجازاته (شاشة الأطباء، زر التقويم). يعرض الحجز الأوقات المتاحة ضمن هذه الساعات فقط.",
+      },
+      receipts: {
+        title: "الإيصالات",
+        text: "اطبع إيصالاً لأجور ودفعات المريض في اليوم، من تبويب الأجور في ملف المريض أو من شاشة الأجور.",
+      },
+      activityLog: {
+        title: "سجل النشاط",
+        text: "يستطيع المالك رؤية من فتح أو غيّر أو حذف أو صدّر أي سجل: الموظفون، ثم النشاط.",
+      },
+      exportAll: {
+        title: "التصدير في كل الخطط",
+        text: "يستطيع كل مالك الآن تنزيل كل سجلات العيادة، أياً كانت الخطة.",
+      },
       launch: {
         title: "مرحباً بك في الأطباء",
         text: "المواعيد، دور غرفة الانتظار، ملفات المرضى مع ملاحظات الزيارة، الوصفات، نتائج المختبر، الأجور والتقارير، بالإنجليزية والكردية والعربية والتركية.",
@@ -242,6 +258,20 @@ const ar: Messages = {
     pick: "الطبيب",
     allDoctors: "كل الأطباء",
     needOne: "أضف طبيباً أولاً (المالك: شاشة الأطباء).",
+    schedule: "ساعات العمل",
+    scheduleTitle: (name: string) => `ساعات العمل: ${name}`,
+    scheduleText: "يعرض الحجز الأوقات المتاحة ضمن هذه الساعات فقط، وينبّه عندما يقع موعد خارجها.",
+    ownWeek: "أسبوع عمل خاص",
+    ownWeekOn: "حدد الأيام والساعات أدناه.",
+    ownWeekOff: (from: string, to: string) => `متوقف: ساعات الحجز في العيادة كل يوم (${from}–${to}).`,
+    ownWeekShort: "ساعات خاصة",
+    notWorking: "لا يعمل",
+    daysOff: "أيام الإجازة",
+    addDaysOff: "إضافة إجازة",
+    noDaysOff: "لا إجازات قادمة.",
+    daysOffNote: "عطلة، مؤتمر…",
+    badHours: "تحقق من الساعات: يجب أن ينتهي كل يوم بعد أن يبدأ.",
+    badDays: "تحقق من أيام الإجازة: يجب أن تنتهي كل إجازة في يومها الأول أو بعده.",
   },
 
   patients: {
@@ -285,6 +315,8 @@ const ar: Messages = {
     pickTitle: "اختر مريضاً",
     pickNew: "مريض جديد",
     since: (date: string) => `مريض منذ ${date}`,
+    maybeSame: "هل هو مريض مسجّل؟",
+    maybeSameText: "افتح ملفه بدلاً من إنشاء ملف ثانٍ، أو تابع إن كان شخصاً آخر.",
   },
 
   visits: {
@@ -344,6 +376,7 @@ const ar: Messages = {
     fee: "الأجر",
     feeAdded: "تمت إضافة الأجر.",
     unsaved: "لديك تغييرات غير محفوظة.",
+    leaveUnsaved: "في هذه الزيارة تغييرات غير محفوظة. هل تغادر دون حفظ؟",
   },
 
   print: {
@@ -399,6 +432,9 @@ const ar: Messages = {
     noShow: "لم يحضر",
     count: (n: number) => (n === 1 ? "موعد واحد" : `${n} مواعيد`),
     free: "متاح",
+    doctorOff: (name: string, note: string) => `${name} في إجازة هذا اليوم${note ? ` (${note})` : ""}.`,
+    doctorClosed: (name: string) => `${name} لا يعمل في هذا اليوم.`,
+    outsideHours: (name: string, from: string, to: string) => `خارج ساعات ${name} (${from}–${to}).`,
   },
 
   queue: {
@@ -568,6 +604,65 @@ const ar: Messages = {
     exportCsv: "جداول (CSV)",
     exportTables: { patients: "المرضى", visits: "الزيارات", appointments: "المواعيد", charges: "الأجور", payments: "الدفعات", expenses: "المصاريف" },
     exportNote: "ملفات المختبر والأشعة تُنزَّل من صفحة كل مريض.",
+  },
+
+  receipt: {
+    title: "إيصال",
+    print: "طباعة الإيصال",
+    back: "العودة إلى المريض",
+    nothing: "لا أجور ولا دفعات في هذا اليوم.",
+    item: "البند",
+    amount: "المبلغ",
+    discountOf: (amount: string) => `خصم ${amount}`,
+    fees: "مجموع الأجور",
+    paid: "مدفوع",
+    stillOwed: "المتبقي",
+    allPaid: "لا شيء مستحق",
+    thanks: "شكراً لكم. مع تمنياتنا بالشفاء.",
+  },
+
+  activity: {
+    title: "النشاط",
+    intro: "من سجّل الدخول، ومن فتح أو غيّر أو حذف أو صدّر أي سجل. التفاصيل تذكر أرقام السجلات فقط.",
+    who: "الشخص",
+    everyone: "الجميع",
+    none: "لم يُسجَّل شيء بعد.",
+    older: "عرض الأقدم",
+    actions: {
+      signIn: "سجّل الدخول",
+      signInAriloo: "سجّل الدخول من Ariloo",
+      ownerPasswordSet: "عيّن كلمة مرور المالك",
+      ownerPasswordChanged: "غيّر كلمة مرور المالك",
+      unlock: "فتح شاشات المالك",
+      staffAdded: "أضاف حساب موظف",
+      staffChanged: "غيّر حساب موظف",
+      staffDeleted: "حذف حساب موظف",
+      timeZone: "غيّر المنطقة الزمنية",
+      patientAdded: "أضاف مريضاً",
+      patientChanged: "غيّر بيانات مريض",
+      patientDeleted: "حذف مريضاً",
+      patientOpened: "فتح ملف مريض",
+      patientExported: "صدّر سجل مريض",
+      visitOpened: "فتح زيارة",
+      visitSaved: "حفظ زيارة",
+      fileAdded: "أضاف ملفاً",
+      fileDeleted: "حذف ملفاً",
+      orderAdded: "طلب فحصاً",
+      appointmentBooked: "حجز موعداً",
+      appointmentMoved: "نقل موعداً",
+      appointmentDone: "علّم موعداً كمُنجز",
+      appointmentCancelled: "ألغى موعداً",
+      appointmentNoShow: "علّم عدم الحضور",
+      queueAdded: "أضاف شخصاً إلى الدور",
+      doctorAdded: "أضاف طبيباً",
+      doctorChanged: "غيّر طبيباً",
+      feeAdded: "أضاف أجراً",
+      feeCancelled: "ألغى أجراً",
+      paymentAdded: "استلم دفعة",
+      paymentCancelled: "ألغى دفعة",
+      export: "صدّر السجلات",
+      screenLink: "أنشأ رابطاً جديداً لشاشة الانتظار",
+    },
   },
 
   errors: {

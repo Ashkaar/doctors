@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { Charge, Doctor, Payment } from "@/lib/clinic";
 import { buildReport, shareOf } from "@/lib/reports";
 
-const doctor = (id: number, shareBp: number): Doctor => ({ id, name: `Dr ${id}`, specialty: "", phone: "", licence: "", room: "", staffId: null, shareBp, slotMinutes: 15, active: true });
+const doctor = (id: number, shareBp: number): Doctor => ({ id, name: `Dr ${id}`, specialty: "", phone: "", licence: "", room: "", staffId: null, shareBp, slotMinutes: 15, active: true, schedule: { week: null, off: [] } });
 const charge = (id: number, doctorId: number | null, amount: number, discount = 0, voided = false): Charge & { day: string } => ({
   id,
   patientId: 1,

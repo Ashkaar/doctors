@@ -1,6 +1,6 @@
 "use client";
 
-import { PencilIcon, PlusIcon, StethoscopeIcon } from "lucide-react";
+import { CalendarClockIcon, PencilIcon, PlusIcon, StethoscopeIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -8,6 +8,7 @@ import type { Doctor } from "@/lib/clinic";
 import { errorMessage, sendJson } from "@/lib/clientApi";
 import { toLatinDigits } from "@/lib/format";
 import { Empty, Field, NativeSelect } from "./clinic/fields";
+import { ScheduleDialog } from "./doctor-schedule";
 import { FormError } from "./form-error";
 import { useI18n } from "./i18n-provider";
 import { PageBody, PageHeader } from "./page-header";
@@ -19,11 +20,26 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Switch } from "./ui/switch";
 
-export function DoctorsManager({ initial, logins, many, shares }: { initial: Doctor[]; logins: { id: number; name: string }[]; many: boolean; shares: boolean }) {
+export function DoctorsManager({
+  initial,
+  logins,
+  many,
+  shares,
+  clinicHours,
+  today,
+}: {
+  initial: Doctor[];
+  logins: { id: number; name: string }[];
+  many: boolean;
+  shares: boolean;
+  clinicHours: { startMin: number; endMin: number };
+  today: string;
+}) {
   const { t } = useI18n();
   const d = t.doctors;
   const router = useRouter();
   const [editing, setEditing] = useState<Doctor | "new" | null>(null);
+  const [scheduling, setScheduling] = useState<Doctor | null>(null);
   const activeCount = initial.filter((x) => x.active).length;
 
   return (
@@ -55,14 +71,33 @@ export function DoctorsManager({ initial, logins, many, shares }: { initial: Doc
                   <Badge variant={doc.active ? "default" : "neutral"}>{doc.active ? d.active : d.inactive}</Badge>
                   {doc.staffId && <Badge variant="neutral">{logins.find((l) => l.id === doc.staffId)?.name ?? d.login}</Badge>}
                   {shares && doc.shareBp > 0 && <Badge variant="neutral">{doc.shareBp / 100}%</Badge>}
+                  {doc.schedule.week && <Badge variant="neutral">{d.ownWeekShort}</Badge>}
                 </div>
               </div>
-              <Button variant="ghost" size="icon-sm" aria-label={d.editTitle(doc.name)} onClick={() => setEditing(doc)}>
-                <PencilIcon />
-              </Button>
+              <div className="flex flex-col gap-1">
+                <Button variant="ghost" size="icon-sm" aria-label={d.editTitle(doc.name)} onClick={() => setEditing(doc)}>
+                  <PencilIcon />
+                </Button>
+                <Button variant="ghost" size="icon-sm" aria-label={d.scheduleTitle(doc.name)} title={d.schedule} onClick={() => setScheduling(doc)}>
+                  <CalendarClockIcon />
+                </Button>
+              </div>
             </Card>
           ))}
         </div>
+      )}
+      {scheduling && (
+        <ScheduleDialog
+          doctor={scheduling}
+          clinicHours={clinicHours}
+          today={today}
+          onClose={() => setScheduling(null)}
+          onSaved={() => {
+            toast.success(t.common.saved);
+            setScheduling(null);
+            router.refresh();
+          }}
+        />
       )}
       {editing && (
         <DoctorDialog
