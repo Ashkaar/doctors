@@ -216,6 +216,8 @@ export interface Vitals {
   heightMm?: number;
   // Blood sugar in mg/dL.
   sugar?: number;
+  // Head circumference in millimetres (children).
+  headMm?: number;
 }
 
 const vital = (max: number) => z.number().int().min(0).max(max).optional();
@@ -230,6 +232,7 @@ export const vitalsSchema = z
     weightG: vital(500_000),
     heightMm: vital(3000),
     sugar: vital(3000),
+    headMm: vital(1000),
   })
   .strict();
 

@@ -29,6 +29,11 @@ colour from Ariloo).
 | Lab and imaging orders with results; lab sheets, X-rays and PDFs on the patient's file | Done |
 | Fees from a price list, discounts, part payments, balances owed, cash/card/transfer | Done |
 | Printed receipts per patient and day (A5/A4, nothing medical on them) | Done |
+| Kind of clinic (asked on the owner's first open, changeable in Settings): general, dental, eye, children, women's health | Done |
+| Dental: interactive tooth chart (FDI, adult / mixed / baby teeth), conditions per tooth and surface, treatment plan with fees that can go straight to the patient's fees | Done |
+| Eye: exam per visit for each eye (vision, refraction, pressure, front and back of the eye), history, printed glasses prescription | Done |
+| Children: WHO growth charts 0–5 years (weight, length/height, head size, percentiles) from visit vitals, vaccine checklist | Done |
+| Women's health: pregnancy record (due date from last period or scan, weeks pregnant, G/P), antenatal checks, past pregnancies | Done |
 | Expenses by month and category | Done |
 | Reports: fees, received, expenses, doctors' shares, net, by doctor/service/day/method | Done |
 | Owner export (JSON, CSV) on every plan, one patient's full record, deleting a patient | Done |
@@ -51,7 +56,28 @@ A 7-day trial has everything.
 - **Advanced**: everything in Pro, plus reports and doctors' income shares.
 
 Every plan lets the owner export all of the clinic's records: they belong to
-the clinic.
+the clinic. The charts for the clinic's kind (dental, eye, children, women's
+health) are in every plan too: they are how that clinic works.
+
+## Kinds of clinic and their charts
+
+The first time the owner opens the clinic, Doctors asks what kind of clinic
+it is (`clinic_types` in the clinic's settings; Ariloo isn't involved). The
+answer decides which tabs patient files show and which charts visits show
+(`lib/specialties.ts`, `lib/specialtiesDb.ts`, `components/specialties/`):
+
+- **Dental**: the tooth chart and treatment plan (doctors, full record).
+- **Eye**: the eye exam in each visit and its glasses prescription.
+- **Children**: growth charts from the weight, height and head size recorded
+  in visits, and vaccines (nurses may record vaccines). Growth curves are the
+  WHO Child Growth Standards for 0–5 years, built by
+  `scripts/who-growth/make.mjs` from the WHO's own tables
+  (github.com/WorldHealthOrganization/anthro). The vaccine list is a common
+  childhood schedule: check it against the Ministry of Health's current one.
+- **Women's health**: pregnancy records with antenatal checks.
+
+In a clinic of several kinds, each chart in a visit starts folded unless
+the visit already uses it.
 
 ## Privacy
 
@@ -146,7 +172,8 @@ node scripts/demo/seed.mjs http://localhost:3000
 `city-clinic` (trial; filled by `seed.mjs` with two doctors, ten patients,
 today's appointments and queue, visits, prescriptions, lab orders, fees and
 24 days of history; Dr. Karwan works Saturday to Thursday with a day off
-next week), `late-clinic` (Starter plan, payment overdue) and
+next week; all five kinds of clinic: a tooth chart for Ahmed, an eye exam for
+Hawre, a baby (Mina) with growth and vaccines, and Shilan 24 weeks pregnant), `late-clinic` (Starter plan, payment overdue) and
 `closed-clinic` (expired). Open http://localhost:3000/city-clinic and sign
 in as Owner (`demo-owner-1`), Sara (doctor, `sara-1234`), Rezan (reception,
 `rezan-1234`) or Hana (nurse, `hana-1234`). Delete `.demo/` to start again.
@@ -178,3 +205,7 @@ Show each on the device it is used on:
 | Staff roles | `/dashboard/staff` → Add staff | laptop |
 | Doctor's working hours | `/dashboard/doctors` → calendar button | laptop |
 | Receipt | `/dashboard/patients/<id>/receipt` | paper / desktop |
+| Tooth chart with a tooth selected | `/dashboard/patients/1` (Teeth) | tablet |
+| Eye exam in a visit, glasses prescription | `/dashboard/visits/<id>`, `…/glasses` | desktop / paper |
+| Growth chart and vaccines | `/dashboard/patients/11` (Growth) | laptop |
+| Pregnancy record | `/dashboard/patients/4` (Pregnancy) | tablet |

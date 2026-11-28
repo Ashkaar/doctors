@@ -9,6 +9,7 @@ import type { Viewer } from "@/lib/sections";
 import { GRACE_MS, type PlanId, type ShopState } from "@/lib/shopState";
 import { cn } from "@/lib/utils";
 import { TurnNumber } from "./clinic/fields";
+import { ClinicTypeWelcome } from "./specialties/clinic-types";
 import { useI18n } from "./i18n-provider";
 import { PageBody } from "./page-header";
 import { useShop } from "./shop-provider";
@@ -35,6 +36,7 @@ export function DashboardHome({
   queue,
   feesToday,
   setup,
+  askClinicType,
 }: {
   viewer: Viewer;
   subscription: Subscription | null;
@@ -44,6 +46,8 @@ export function DashboardHome({
   queue: QueueTicket[];
   feesToday: number | null;
   setup: { doctors: boolean; services: boolean; patients: boolean } | null;
+  // The owner's first visit: what kind of clinic is this?
+  askClinicType: boolean;
 }) {
   const { t, date, money, day: dayText } = useI18n();
   const d = t.dashboard;
@@ -74,6 +78,7 @@ export function DashboardHome({
 
   return (
     <PageBody>
+      {askClinicType && <ClinicTypeWelcome />}
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight sm:text-[28px]">{greeting}</h1>

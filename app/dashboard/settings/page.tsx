@@ -2,7 +2,7 @@ import { SettingsScreen, type ClinicFacts } from "@/components/settings-screen";
 import { clinicFeatures } from "@/lib/features";
 import { listServices } from "@/lib/moneyDb";
 import { requireSectionPage } from "@/lib/pageAccess";
-import { getHours, getPrintSettings, getScreenKey } from "@/lib/settingsDb";
+import { getClinicTypes, getHours, getPrintSettings, getScreenKey } from "@/lib/settingsDb";
 import { accountUrl, currentShop, profileOf } from "@/lib/tenant";
 
 export default async function SettingsPage() {
@@ -18,12 +18,13 @@ export default async function SettingsPage() {
     accountUrl: shop ? accountUrl() : null,
   };
   const owner = viewer.isOwner;
-  const [features, services, print, hours, screenKey] = await Promise.all([
+  const [features, services, print, hours, screenKey, types] = await Promise.all([
     clinicFeatures(),
     owner ? listServices() : Promise.resolve([]),
     getPrintSettings(),
     getHours(),
     owner ? getScreenKey() : Promise.resolve(null),
+    getClinicTypes(),
   ]);
-  return <SettingsScreen viewer={viewer} clinic={facts} features={features} services={services} print={print} hours={hours} screenKey={screenKey} />;
+  return <SettingsScreen viewer={viewer} clinic={facts} features={features} services={services} print={print} hours={hours} screenKey={screenKey} types={types ?? ["general"]} />;
 }

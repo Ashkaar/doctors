@@ -3,6 +3,7 @@ import { randomBytes } from "crypto";
 import { eq, sql } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { normaliseHours, normalisePrint, type HoursSettings, type PrintSettings } from "./clinicSettings";
+import { normaliseTypes, type ClinicType } from "./specialties";
 import { getDb } from "./db";
 import { clinicSettings } from "./db/schema";
 import { dayOf } from "./format";
@@ -84,4 +85,13 @@ export async function newScreenKey(): Promise<string> {
   const key = randomBytes(16).toString("hex");
   await writeSetting("screen_key", key);
   return key;
+}
+
+// What kind of clinic this is (null until the owner has chosen).
+export async function getClinicTypes(): Promise<ClinicType[] | null> {
+  return normaliseTypes(await readSetting("clinic_types"));
+}
+
+export async function setClinicTypes(types: ClinicType[]): Promise<void> {
+  await writeSetting("clinic_types", types);
 }
